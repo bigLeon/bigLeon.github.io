@@ -6,9 +6,19 @@
     <description>Recent content in Categories on Leon&#39;s blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-CN</language>
+    <lastBuildDate>Sun, 03 May 2020 20:49:43 +0800</lastBuildDate>
     
 	<atom:link href="https://bigleon.github.io/categories/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>技术</title>
+      <link>https://bigleon.github.io/categories/%E6%8A%80%E6%9C%AF/</link>
+      <pubDate>Sun, 03 May 2020 20:49:43 +0800</pubDate>
+      
+      <guid>https://bigleon.github.io/categories/%E6%8A%80%E6%9C%AF/</guid>
+      <description></description>
+    </item>
     
   </channel>
 </rss>

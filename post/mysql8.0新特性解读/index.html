@@ -131,6 +131,22 @@
 </span> 
       
 
+  <span class="post-category" >
+  &nbsp; | &nbsp;
+  <span class="post-meta-item-icon">
+    <i class="fa fa-folder-o"></i>
+  </span>
+  <span class="post-meta-item-text">分类：</span>
+  
+    <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+      <a href="https://bigleon.github.io/categories/%E6%8A%80%E6%9C%AF" itemprop="url" rel="index">
+        <span itemprop="name">技术</span>
+      </a>
+      &nbsp; 
+    </span>
+  
+</span>
+
 
        <span>
 &nbsp; | &nbsp;
@@ -138,16 +154,324 @@
     <i class="fa fa-eye"></i>
 </span>
 <span class="post-meta-item-text">阅读：</span>
-<span class="leancloud-visitors-count">0 字 ~0分钟</span>
+<span class="leancloud-visitors-count">3393 字 ~7分钟</span>
 </span>
       </div>
     </header>
     <div class="post-body" itemprop="articleBody">
-    <!-- raw HTML omitted -->
+    <h2 id="mysql-80-新特性解读">MySQL 8.0 新特性解读</h2>
+<blockquote>
+<p>MySQL 8.0 2018/4/19 General Availability以来已经发发布了9个小版本。很多公司已经开始使用8.0版本尤其是官方主要精力在8.0版本的新特性和bug修改，8.0的MGR 持续的修复bug 和引入,MGR原生强一致高可用特性对于金融行业对于数据强一致的要是极大的吸引力。  2020/1/13 MySQL 8.0.19 新版本GA了,新年第一个版本。MySQL8.0以来新增新特性将近300个，本文将对新特性进行梳理。把其中重大特性所带来的影响将做一些说明希望不管是开发还是运维能从中找到自己期望的新特性能解决生产中的痛点。预计阅读完本篇文章大约5分钟。</p>
+</blockquote>
+<h4 id="重点新特性">重点新特性：</h4>
+<h5 id="hash-join">Hash Join</h5>
+<ul>
+<li>
+<p>Mysql一直以来关于表连接只支持block-nested loop 算法。在最新的8.0.18支持了期望已久的Hash Join，对与多表连接中连接字段没有索引的场景下特别适合。这样再也不担心被驱动表连接字段忘记加索引导致线上SQL拖垮整个系统了。</p>
+<ul>
+<li>
+<p>目前MySQL对Hash Join支持也是有条件的：</p>
+<ul>
+<li>
+<ol>
+<li>每个连接当中，至少有一个等值连接条件；</li>
+</ol>
+</li>
+<li>
+<ol start="2">
+<li>在笛卡尔积场景下没有等值条件也会用上hash join</li>
+</ol>
+</li>
+</ul>
+</li>
+<li>
+<p>可以global 或者 session 对系统变量optimizer_switch中hash_join = on/off 进行控制（在8.0.19这个小版本已经弃用）</p>
+</li>
+<li>
+<p>通过join_buffer_size可以调整hash连接表是否在内存或者落盘实现，这对整个速度会有比较大的影响。</p>
+</li>
+<li>
+<p>下面是在mysql8.0中是否启用hash_join的场景下sql的变化。</p>
+<ul>
+<li>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#ae81ff">1</span>. <span style="color:#960050;background-color:#1e0010">查看优化器关于</span>hash_join参数默认已经开启
+      
+MySQL <span style="color:#ae81ff">192</span>.<span style="color:#ae81ff">168</span>.<span style="color:#ae81ff">0</span>.<span style="color:#ae81ff">52</span>:<span style="color:#ae81ff">33060</span><span style="color:#f92672">+</span> ssl <span style="color:#66d9ef">SQL</span> <span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">show</span> <span style="color:#66d9ef">global</span> variables <span style="color:#66d9ef">like</span> <span style="color:#e6db74">&#39;%switch%%&#39;</span><span style="color:#960050;background-color:#1e0010">\</span><span style="color:#66d9ef">G</span>;
+      
+<span style="color:#f92672">***************************</span> <span style="color:#ae81ff">1</span>. <span style="color:#66d9ef">row</span> <span style="color:#f92672">***************************</span>
+      
+Variable_name: optimizer_switch
+      
+          Value: hash_join<span style="color:#f92672">=</span><span style="color:#66d9ef">on</span>
+      
+      
+<span style="color:#ae81ff">2</span>. <span style="color:#960050;background-color:#1e0010">表结构</span>
+<span style="color:#66d9ef">CREATE</span> <span style="color:#66d9ef">TABLE</span> <span style="color:#f92672">`</span>t1<span style="color:#f92672">`</span> (
+  <span style="color:#f92672">`</span>c1<span style="color:#f92672">`</span> int(<span style="color:#ae81ff">11</span>) <span style="color:#66d9ef">NOT</span> <span style="color:#66d9ef">NULL</span>,
+  <span style="color:#f92672">`</span>c2<span style="color:#f92672">`</span> int(<span style="color:#ae81ff">11</span>) <span style="color:#66d9ef">DEFAULT</span> <span style="color:#66d9ef">NULL</span>,
+  <span style="color:#66d9ef">PRIMARY</span> <span style="color:#66d9ef">KEY</span> (<span style="color:#f92672">`</span>c1<span style="color:#f92672">`</span>)
+) ENGINE<span style="color:#f92672">=</span>InnoDB <span style="color:#66d9ef">DEFAULT</span> CHARSET<span style="color:#f92672">=</span>utf8mb4 <span style="color:#66d9ef">COLLATE</span><span style="color:#f92672">=</span>utf8mb4_0900_ai_ci
+      
+<span style="color:#66d9ef">CREATE</span> <span style="color:#66d9ef">TABLE</span> <span style="color:#f92672">`</span>t2<span style="color:#f92672">`</span> (
+  <span style="color:#f92672">`</span>c1<span style="color:#f92672">`</span> int(<span style="color:#ae81ff">11</span>) <span style="color:#66d9ef">NOT</span> <span style="color:#66d9ef">NULL</span>,
+  <span style="color:#f92672">`</span>c2<span style="color:#f92672">`</span> int(<span style="color:#ae81ff">11</span>) <span style="color:#66d9ef">DEFAULT</span> <span style="color:#66d9ef">NULL</span>,
+  <span style="color:#66d9ef">PRIMARY</span> <span style="color:#66d9ef">KEY</span> (<span style="color:#f92672">`</span>c1<span style="color:#f92672">`</span>)
+) ENGINE<span style="color:#f92672">=</span>InnoDB <span style="color:#66d9ef">DEFAULT</span> CHARSET<span style="color:#f92672">=</span>utf8mb4 <span style="color:#66d9ef">COLLATE</span><span style="color:#f92672">=</span>utf8mb4_0900_ai_ci
+      
+ MySQL  <span style="color:#ae81ff">192</span>.<span style="color:#ae81ff">168</span>.<span style="color:#ae81ff">0</span>.<span style="color:#ae81ff">52</span>:<span style="color:#ae81ff">33060</span><span style="color:#f92672">+</span> ssl  mgrtest  <span style="color:#66d9ef">SQL</span> <span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">select</span> <span style="color:#66d9ef">count</span>(<span style="color:#f92672">*</span>) <span style="color:#66d9ef">from</span> t1;
+<span style="color:#f92672">+</span><span style="color:#75715e">----------+
+</span><span style="color:#75715e"></span><span style="color:#f92672">|</span> <span style="color:#66d9ef">count</span>(<span style="color:#f92672">*</span>) <span style="color:#f92672">|</span>
+<span style="color:#f92672">+</span><span style="color:#75715e">----------+
+</span><span style="color:#75715e"></span><span style="color:#f92672">|</span>     <span style="color:#ae81ff">7215</span> <span style="color:#f92672">|</span>
+<span style="color:#f92672">+</span><span style="color:#75715e">----------+
+</span><span style="color:#75715e"></span>      
+ MySQL  <span style="color:#ae81ff">192</span>.<span style="color:#ae81ff">168</span>.<span style="color:#ae81ff">0</span>.<span style="color:#ae81ff">52</span>:<span style="color:#ae81ff">33060</span><span style="color:#f92672">+</span> ssl  mgrtest  <span style="color:#66d9ef">SQL</span> <span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">select</span> <span style="color:#66d9ef">count</span>(<span style="color:#f92672">*</span>) <span style="color:#66d9ef">from</span> t2;
+<span style="color:#f92672">+</span><span style="color:#75715e">----------+
+</span><span style="color:#75715e"></span><span style="color:#f92672">|</span> <span style="color:#66d9ef">count</span>(<span style="color:#f92672">*</span>) <span style="color:#f92672">|</span>
+<span style="color:#f92672">+</span><span style="color:#75715e">----------+
+</span><span style="color:#75715e"></span><span style="color:#f92672">|</span>     <span style="color:#ae81ff">7215</span> <span style="color:#f92672">|</span>
+<span style="color:#f92672">+</span><span style="color:#75715e">----------+
+</span><span style="color:#75715e"></span>      
+<span style="color:#ae81ff">3</span>. <span style="color:#960050;background-color:#1e0010">查看表</span>t1<span style="color:#f92672">/</span>t2用无索引的列c2做关联
+ MySQL  <span style="color:#ae81ff">192</span>.<span style="color:#ae81ff">168</span>.<span style="color:#ae81ff">0</span>.<span style="color:#ae81ff">52</span>:<span style="color:#ae81ff">33060</span><span style="color:#f92672">+</span> ssl  mgrtest  <span style="color:#66d9ef">SQL</span> <span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">explain</span> format<span style="color:#f92672">=</span>tree <span style="color:#66d9ef">select</span> <span style="color:#66d9ef">count</span>(<span style="color:#f92672">*</span>) <span style="color:#66d9ef">from</span> t1  <span style="color:#66d9ef">join</span> t2 <span style="color:#66d9ef">on</span> t1.c2 <span style="color:#f92672">=</span> t2.c2 ;
+<span style="color:#f92672">+</span><span style="color:#75715e">----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+</span><span style="color:#75715e"></span><span style="color:#f92672">|</span> <span style="color:#66d9ef">EXPLAIN</span>                                                                                                                                                                                                                    <span style="color:#f92672">|</span>
+<span style="color:#f92672">+</span><span style="color:#75715e">----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+</span><span style="color:#75715e"></span><span style="color:#f92672">|</span> <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Aggregate</span>: <span style="color:#66d9ef">count</span>(<span style="color:#ae81ff">0</span>)
+    <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Inner</span> hash <span style="color:#66d9ef">join</span> (t2.c2 <span style="color:#f92672">=</span> t1.c2)  (cost<span style="color:#f92672">=</span><span style="color:#ae81ff">5206351</span>.<span style="color:#ae81ff">53</span> <span style="color:#66d9ef">rows</span><span style="color:#f92672">=</span><span style="color:#ae81ff">5205623</span>)
+        <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Table</span> scan <span style="color:#66d9ef">on</span> t2  (cost<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>.<span style="color:#ae81ff">01</span> <span style="color:#66d9ef">rows</span><span style="color:#f92672">=</span><span style="color:#ae81ff">7215</span>)
+        <span style="color:#f92672">-&gt;</span> Hash
+            <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Table</span> scan <span style="color:#66d9ef">on</span> t1  (cost<span style="color:#f92672">=</span><span style="color:#ae81ff">725</span>.<span style="color:#ae81ff">25</span> <span style="color:#66d9ef">rows</span><span style="color:#f92672">=</span><span style="color:#ae81ff">7215</span>)
+ <span style="color:#f92672">|</span>
+<span style="color:#f92672">+</span><span style="color:#75715e">----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+</span><span style="color:#75715e"></span><span style="color:#ae81ff">1</span> <span style="color:#66d9ef">row</span> <span style="color:#66d9ef">in</span> <span style="color:#66d9ef">set</span> (<span style="color:#ae81ff">0</span>.<span style="color:#ae81ff">0009</span> sec)
+      
+<span style="color:#ae81ff">4</span>. <span style="color:#960050;background-color:#1e0010">使用</span>hash_join执行速度
+ MySQL  <span style="color:#ae81ff">192</span>.<span style="color:#ae81ff">168</span>.<span style="color:#ae81ff">0</span>.<span style="color:#ae81ff">52</span>:<span style="color:#ae81ff">33060</span><span style="color:#f92672">+</span> ssl  mgrtest  <span style="color:#66d9ef">SQL</span> <span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">select</span> <span style="color:#66d9ef">count</span>(<span style="color:#f92672">*</span>) <span style="color:#66d9ef">from</span> t1  <span style="color:#66d9ef">join</span> t2 <span style="color:#66d9ef">on</span> t1.c2 <span style="color:#f92672">=</span> t2.c2 ;
+<span style="color:#f92672">+</span><span style="color:#75715e">----------+
+</span><span style="color:#75715e"></span><span style="color:#f92672">|</span> <span style="color:#66d9ef">count</span>(<span style="color:#f92672">*</span>) <span style="color:#f92672">|</span>
+<span style="color:#f92672">+</span><span style="color:#75715e">----------+
+</span><span style="color:#75715e"></span><span style="color:#f92672">|</span>     <span style="color:#ae81ff">7215</span> <span style="color:#f92672">|</span>
+<span style="color:#f92672">+</span><span style="color:#75715e">----------+
+</span><span style="color:#75715e"></span><span style="color:#ae81ff">1</span> <span style="color:#66d9ef">row</span> <span style="color:#66d9ef">in</span> <span style="color:#66d9ef">set</span> (<span style="color:#ae81ff">0</span>.<span style="color:#ae81ff">0045</span> sec)
+      
+<span style="color:#ae81ff">5</span>. <span style="color:#960050;background-color:#1e0010">关掉</span>hash join功能
+      
+ MySQL  <span style="color:#ae81ff">192</span>.<span style="color:#ae81ff">168</span>.<span style="color:#ae81ff">0</span>.<span style="color:#ae81ff">52</span>:<span style="color:#ae81ff">33060</span><span style="color:#f92672">+</span> ssl  mgrtest  <span style="color:#66d9ef">SQL</span> <span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">show</span> variables <span style="color:#66d9ef">like</span> <span style="color:#e6db74">&#39;%switch%&#39;</span>;
+      
+<span style="color:#f92672">|</span> Variable_name    <span style="color:#f92672">|</span> Value                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
+      
+<span style="color:#f92672">|</span> optimizer_switch <span style="color:#f92672">|</span> hash_join<span style="color:#f92672">=</span><span style="color:#66d9ef">off</span> <span style="color:#f92672">|</span>
+      
+      
+      
+MySQL  <span style="color:#ae81ff">192</span>.<span style="color:#ae81ff">168</span>.<span style="color:#ae81ff">0</span>.<span style="color:#ae81ff">52</span>:<span style="color:#ae81ff">33060</span><span style="color:#f92672">+</span> ssl  mgrtest  <span style="color:#66d9ef">SQL</span> <span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">explain</span> format<span style="color:#f92672">=</span>tree <span style="color:#66d9ef">select</span> <span style="color:#66d9ef">count</span>(<span style="color:#f92672">*</span>) <span style="color:#66d9ef">from</span> t1  <span style="color:#66d9ef">join</span> t2 <span style="color:#66d9ef">on</span> t1.c2 <span style="color:#f92672">=</span> t2.c2 ;
+<span style="color:#f92672">+</span><span style="color:#75715e">----------------------------------------+
+</span><span style="color:#75715e"></span><span style="color:#f92672">|</span> <span style="color:#66d9ef">EXPLAIN</span>                                <span style="color:#f92672">|</span>
+<span style="color:#f92672">+</span><span style="color:#75715e">----------------------------------------+
+</span><span style="color:#75715e"></span><span style="color:#f92672">|</span> <span style="color:#f92672">&lt;</span><span style="color:#66d9ef">not</span> executable <span style="color:#66d9ef">by</span> iterator executor<span style="color:#f92672">&gt;</span>
+ <span style="color:#f92672">|</span>
+<span style="color:#f92672">+</span><span style="color:#75715e">----------------------------------------+
+</span><span style="color:#75715e"></span><span style="color:#ae81ff">1</span> <span style="color:#66d9ef">row</span> <span style="color:#66d9ef">in</span> <span style="color:#66d9ef">set</span> (<span style="color:#ae81ff">0</span>.<span style="color:#ae81ff">0010</span> sec)
+      
+<span style="color:#75715e">--未使用hash_join功能执行同一条sql的速度
+</span><span style="color:#75715e"></span> MySQL  <span style="color:#ae81ff">192</span>.<span style="color:#ae81ff">168</span>.<span style="color:#ae81ff">0</span>.<span style="color:#ae81ff">52</span>:<span style="color:#ae81ff">33060</span><span style="color:#f92672">+</span> ssl  mgrtest  <span style="color:#66d9ef">SQL</span> <span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">select</span> <span style="color:#66d9ef">count</span>(<span style="color:#f92672">*</span>) <span style="color:#66d9ef">from</span> t1  <span style="color:#66d9ef">join</span> t2 <span style="color:#66d9ef">on</span> t1.c2 <span style="color:#f92672">=</span> t2.c2 ;
+<span style="color:#f92672">+</span><span style="color:#75715e">----------+
+</span><span style="color:#75715e"></span><span style="color:#f92672">|</span> <span style="color:#66d9ef">count</span>(<span style="color:#f92672">*</span>) <span style="color:#f92672">|</span>
+<span style="color:#f92672">+</span><span style="color:#75715e">----------+
+</span><span style="color:#75715e"></span><span style="color:#f92672">|</span>     <span style="color:#ae81ff">7215</span> <span style="color:#f92672">|</span>
+<span style="color:#f92672">+</span><span style="color:#75715e">----------+
+</span><span style="color:#75715e"></span><span style="color:#ae81ff">1</span> <span style="color:#66d9ef">row</span> <span style="color:#66d9ef">in</span> <span style="color:#66d9ef">set</span> (<span style="color:#ae81ff">2</span>.<span style="color:#ae81ff">2888</span> sec)
+      
+      
+<span style="color:#ae81ff">6</span>. <span style="color:#960050;background-color:#1e0010">两者速度差了</span><span style="color:#ae81ff">508</span><span style="color:#960050;background-color:#1e0010">倍，由此可见</span>hash_join功能强大
+ MySQL  <span style="color:#ae81ff">192</span>.<span style="color:#ae81ff">168</span>.<span style="color:#ae81ff">0</span>.<span style="color:#ae81ff">52</span>:<span style="color:#ae81ff">33060</span><span style="color:#f92672">+</span> ssl  mgrtest  <span style="color:#66d9ef">SQL</span> <span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">select</span> <span style="color:#ae81ff">2</span>.<span style="color:#ae81ff">2888</span><span style="color:#f92672">/</span><span style="color:#ae81ff">0</span>.<span style="color:#ae81ff">0045</span>;
+<span style="color:#f92672">+</span><span style="color:#75715e">---------------+
+</span><span style="color:#75715e"></span><span style="color:#f92672">|</span> <span style="color:#ae81ff">2</span>.<span style="color:#ae81ff">2888</span><span style="color:#f92672">/</span><span style="color:#ae81ff">0</span>.<span style="color:#ae81ff">0045</span> <span style="color:#f92672">|</span>
+<span style="color:#f92672">+</span><span style="color:#75715e">---------------+
+</span><span style="color:#75715e"></span><span style="color:#f92672">|</span>  <span style="color:#ae81ff">508</span>.<span style="color:#ae81ff">62222222</span> <span style="color:#f92672">|</span>
+<span style="color:#f92672">+</span><span style="color:#75715e">---------------+
+</span><span style="color:#75715e"></span><span style="color:#ae81ff">1</span> <span style="color:#66d9ef">row</span> <span style="color:#66d9ef">in</span> <span style="color:#66d9ef">set</span> (<span style="color:#ae81ff">0</span>.<span style="color:#ae81ff">0005</span> sec)
+      
+      
+      
+</code></pre></div></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h5 id="clone-plugin">Clone Plugin</h5>
+<ul>
+<li>
+<p>从8.0.17 官方引入了一个重量级功能克隆插件，可以对当前实例进行数据克隆到本地或者远程。这是官方提供的原生的物理备份功能其原理类似percona公司的物理备份工具xtrabackup。这对于数据库运维将是极大的解放，增加从库或者MGR添加节点只需要执行几条命令就可以了。对于自动化平台的开发降低难度，将不再关心搭建从库的细节。</p>
+</li>
+<li>
+<p>本地数据克隆，生成在指定目录下</p>
+<p><!-- raw HTML omitted --></p>
+</li>
+<li>
+<p>远程数据克隆，数据源实例被称为Recipient ，数据接收实例被称为Donor。</p>
+<p><!-- raw HTML omitted --></p>
+</li>
+<li>
+<p>数据远程克隆主要流程</p>
+<ul>
+<li>Init阶段: 开启备份锁，阻止DDL操作</li>
+<li>File Copy ：对数据文件进行copy，copy文件前开启page tracking功能，记录此时checkpoint的lsn作为起始lsn。</li>
+<li>Page Copy ：在数据文件copy完成后，开始redo 归档获取当前checkpoint的lsn，同时停掉page copy。page copy 是会将开始拷贝数据文件之后所有page的修改的page发送到Donor。</li>
+<li>Redo Copy ：停掉redo 归档，把所有日志传到Donor端获取binlog的gtid信息。</li>
+<li>Done</li>
+</ul>
+</li>
+<li>
+<p>克隆数据目前的一些限制：</p>
+<ul>
+<li>在clone过程中会block DDL操作</li>
+<li>作为Donor数据接收者数据库版本必须一致</li>
+<li>clone不能复制配置文件</li>
+<li>目前只支持innodb表，sys库用其他引擎的表将不会被复制。</li>
+<li>需要重启节点，并不保证任何情况下可以重启。</li>
+</ul>
+</li>
+</ul>
+<h5 id="json-functions-using-multi-valued-indexes">JSON functions using multi-valued indexes</h5>
+<ul>
+<li>
+<p>在mysql8.0.17新版本开始支持json数组多值索引。正如名字现在支持对文档属性支持对多个值创建索引，极大增强mysql的nosql特性。根据官方资料，多值索引属于函数索引在引擎层通过虚拟列实现的。这个特性的出现可以在使用mongodb之类的文档数据库的，可以考虑使用mysql减少技术学习成本。</p>
+</li>
+<li>
+<p>下面展示多值索引的使用方式：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#960050;background-color:#1e0010">下面展示多值索引的使用方式：</span>
+<span style="color:#66d9ef">CREATE</span> <span style="color:#66d9ef">TABLE</span> customers_1 (
+id BIGINT <span style="color:#66d9ef">NOT</span> <span style="color:#66d9ef">NULL</span> AUTO_INCREMENT <span style="color:#66d9ef">PRIMARY</span> <span style="color:#66d9ef">KEY</span>,
+modified DATETIME <span style="color:#66d9ef">DEFAULT</span> <span style="color:#66d9ef">CURRENT_TIMESTAMP</span> <span style="color:#66d9ef">ON</span> <span style="color:#66d9ef">UPDATE</span> <span style="color:#66d9ef">CURRENT_TIMESTAMP</span>,
+custinfo JSON
+);
+  
+<span style="color:#75715e">-- 对cusinfo列中zipcode属性添加多值索引
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">ALTER</span> <span style="color:#66d9ef">TABLE</span> customers <span style="color:#66d9ef">ADD</span> <span style="color:#66d9ef">INDEX</span> zips( (<span style="color:#66d9ef">CAST</span>(custinfo<span style="color:#f92672">-&gt;</span><span style="color:#e6db74">&#39;$.zipcode&#39;</span> <span style="color:#66d9ef">AS</span> UNSIGNED ARRAY)) );
+  
+<span style="color:#66d9ef">INSERT</span> <span style="color:#66d9ef">INTO</span> customers <span style="color:#66d9ef">VALUES</span> 
+(<span style="color:#66d9ef">NULL</span>, NOW(), <span style="color:#e6db74">&#39;{&#34;user&#34;:&#34;Jack&#34;,&#34;user_id&#34;:37,&#34;zipcode&#34;:[94582,94536]}&#39;</span>),
+(<span style="color:#66d9ef">NULL</span>, NOW(), <span style="color:#e6db74">&#39;{&#34;user&#34;:&#34;Jill&#34;,&#34;user_id&#34;:22,&#34;zipcode&#34;:[94568,94507,94582]}&#39;</span>),
+(<span style="color:#66d9ef">NULL</span>, NOW(), <span style="color:#e6db74">&#39;{&#34;user&#34;:&#34;Bob&#34;,&#34;user_id&#34;:31,&#34;zipcode&#34;:[94477,94507]}&#39;</span>),
+(<span style="color:#66d9ef">NULL</span>, NOW(), <span style="color:#e6db74">&#39;{&#34;user&#34;:&#34;Mary&#34;,&#34;user_id&#34;:72,&#34;zipcode&#34;:[94536]}&#39;</span>),
+(<span style="color:#66d9ef">NULL</span>, NOW(), <span style="color:#e6db74">&#39;{&#34;user&#34;:&#34;Ted&#34;,&#34;user_id&#34;:56,&#34;zipcode&#34;:[94507,94582]}&#39;</span>);
+  
+<span style="color:#75715e">-- 使用多值索引需使用MEMBER OF() JSON_CONTAINS() JSON_OVERLAPS()函数
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">SELECT</span> <span style="color:#f92672">*</span> <span style="color:#66d9ef">FROM</span> customers <span style="color:#66d9ef">WHERE</span> JSON_CONTAINS(custinfo<span style="color:#f92672">-&gt;</span><span style="color:#e6db74">&#39;$.zipcode&#39;</span>, <span style="color:#66d9ef">CAST</span>(<span style="color:#e6db74">&#39;[94507,94582]&#39;</span> <span style="color:#66d9ef">AS</span> JSON));
+</code></pre></div></li>
+</ul>
+<h5 id="mysql-shell-enhancements">MYSQL Shell Enhancements</h5>
+<ul>
+<li>mysql-shell 是mysql 官方提供的一个高级mysql客户端。提供了类似mysql的函数，兼容 js 和 python 脚本。提供X DevAPI 提供了同时操作关系型和文档型数据。AdminAPI 则提供了管理MGR 集群工具，加节点和获取集群信息只需要几条命令即可完成吧。最重要的是当我们从5.7升级8.0 的时候可以使用mysql-shell提供的升级检查工具 util.checkForServerUpgrade() 进行升级检查，很轻松的帮助我们知道目前5.7里哪些是8.0不兼容，可以做处理方便我们平滑升级到8.0。</li>
+</ul>
+<h5 id="innodb-cluster-enhancements">InnoDB Cluster Enhancements</h5>
+<ul>
+<li>
+<p>InnoDB Cluster 是 把 MGR  /mysql-shell /mysql-router 三个组件集成在一起，MGR 解决了高可用，mysql-shell 解决了集群配置管理mysql-router 作为failover 接入层。这是一套mysql官方提供的原生高可用管理解决方案。下面是InnoDB Cluster 整体架构图。</p>
+</li>
+<li>
+<p>其中最重要的是MGR提供了基于强一致协议的节点数据同步和故障转移。</p>
+</li>
+<li>
+<p>mysql-router 轻量级中间件，提供应用程序的连接可用节点实现故障转移</p>
+</li>
+<li>
+<p>mysql-shell 可以通过 Admin API 来配置管理Innodb Cluster 进行配置管理</p>
+</li>
+<li>
+<p><!-- raw HTML omitted --></p>
+</li>
+</ul>
+<h5 id="replication-enhancements">Replication Enhancements</h5>
+<ul>
+<li>
+<p>组复制引入大量消息碎片层，增强了Paxos 引擎单线程消息传递至内核XCom在高并发大消息时线程忙于处理消息而延迟参与故障检测导致增加故障检测器的误报几率</p>
+</li>
+<li>
+<p>XCom的消息缓存可通过参数调整，增强更大的消息负载</p>
+</li>
+<li>
+<p>组复制节点由于网络瞬断时节点自动在此加入集群</p>
+</li>
+<li>
+<p>新增可替换二进制日志密钥的SQL命令，在不停机替换binlog加密密钥</p>
+</li>
+<li>
+<p>binlog将携带分区表更改元数据</p>
+</li>
+<li>
+<p>引入克隆组件，增强了节点自动恢复，极大方便了MGR节点增加</p>
+</li>
+<li></li>
+</ul>
+<h4 id="其他新特性列举">其他新特性列举：</h4>
+<ul>
+<li>重构SQL分析器 （SQLParaser）</li>
+<li>行锁增加SKIP LOCKED 和 NOWAIT特性选项</li>
+<li>新增事务CATS特性， （Michigan大学提供）</li>
+<li>在线修改undo log 数量</li>
+<li>直方图 histogram</li>
+<li>认证插件由sha256_password改成caching_sha2_password</li>
+<li>新增角色ole功能，将权限打包分组二次授权</li>
+<li>消除了buffer pool mutex （Percona的贡献）</li>
+<li>数据字典全部采用InnoDB引擎储存，支持DDL原子性，crash safe, metadata 管理更完善（可以利用ibd2sdi工具提取metadata）</li>
+<li>快速在线加新列（腾讯互娱DBA团队贡献）</li>
+<li>并行redo log， 并提供redo log的I/O性能。可在线调整redo log buffer</li>
+<li>redo日志归档</li>
+<li>新增倒序索引，不可见索引， 函数索引</li>
+<li>优化器增强，增强CBO特性</li>
+<li>支持会话级别SET_VAR动态调整部分参数</li>
+<li>自增列持久化</li>
+<li>增强JSON性能，功能</li>
+<li>新增智能选项 innodb_deficated_server</li>
+<li>InnoDB memcached 插件支持mget操作</li>
+<li>增加redo/undo log加密</li>
+<li>增加resource group功能</li>
+<li>新增更多数据字典</li>
+<li>默认字符集改成了utf8mb4（连接字符集，表字符集）</li>
+<li>通用表达式CTE</li>
+<li>窗口函数</li>
+<li>SET PERSIST</li>
+<li>Writeset 并行（relay log 阶段可以合并事务做到高效回放）</li>
+<li>restart功能 （配合clone plugin）</li>
+<li>取消QC</li>
+<li>备份锁（lock instance for backup）</li>
+<li>Mysql8.0引入一个：admin_port 默认33062
+<ul>
+<li>管理连接相关参数
+<ul>
+<li>admin_address</li>
+<li>Admin_port</li>
+<li>create_admin_listener_thead = 2</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="总结">总结：</h4>
+<ul>
+<li>MySQL 8.0 新特性我只列举一些比较重要的新特性，要是想了解更多可以参考官方文档。从上面文章可以了解到mysql8.0已经时一个全新的版本，新特性增加了很多，也遗弃很多功能。这对于管理员和开发人员来讲都需要好好学习了解。mysql8.0 小版本GA已经9个小版本，处于比较稳定的状态了。尤其是对于MGR的增强也是逐步完善。金融行业数据一致性的要求是各个行业最高的，MGR的强一致的特性是极具吸引力的。正如现在我们引入的mysql管理平台DMP，对mysql8.0 和 mysql8.0 MGR 也是支持的，假如有项目组有这方面需求可以和我们联系。</li>
+</ul>
+<blockquote>
+<p>参考：</p>
+<p><a href="https://dev.mysql.com/doc/refman/8.0/en/hash-joins.html">https://dev.mysql.com/doc/refman/8.0/en/hash-joins.html</a></p>
+<p><a href="https://mysqlserverteam.com/hash-join-in-mysql-8/">https://mysqlserverteam.com/hash-join-in-mysql-8/</a></p>
+<p><a href="https://dev.mysql.com/worklog/task/?id=9209">https://dev.mysql.com/worklog/task/?id=9209</a></p>
+<p><a href="https://dev.mysql.com/worklog/task/?id=8763">https://dev.mysql.com/worklog/task/?id=8763</a></p>
+</blockquote>
 
     </div>
     <footer class="post-footer">
      
+ 
+<div class="post-tags">     
+     
+    <a href="https://bigleon.github.io/tags/mysql" rel="tag" title="MySQL">#MySQL#</a>
+    
+</div>
 
 
 
@@ -203,7 +527,7 @@
     <div class="site-state-item site-state-categories">    
         <a href="https://bigleon.github.io/categories/">      
          
-        <span class="site-state-item-count">0</span>
+        <span class="site-state-item-count">1</span>
         
         <span class="site-state-item-name">分类</span>
         
@@ -213,7 +537,7 @@
     <div class="site-state-item site-state-tags">
         <a href="https://bigleon.github.io/tags/">
          
-        <span class="site-state-item-count">0</span>
+        <span class="site-state-item-count">1</span>
         
         <span class="site-state-item-name">标签</span>
         </a>
