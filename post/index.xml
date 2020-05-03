@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Leon&#39;s blog</title>
-    <link>https://bigleon.github.io/</link>
-    <description>Recent content on Leon&#39;s blog</description>
+    <title>Posts on Leon&#39;s blog</title>
+    <link>https://bigleon.github.io/post/</link>
+    <description>Recent content in Posts on Leon&#39;s blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-CN</language>
     <lastBuildDate>Sun, 03 May 2020 20:49:43 +0800</lastBuildDate>
     
-	<atom:link href="https://bigleon.github.io/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://bigleon.github.io/post/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
