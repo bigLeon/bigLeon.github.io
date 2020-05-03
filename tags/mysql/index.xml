@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>MySQL on Leon&#39;s blog</title>
+    <title>MySQL on Your title</title>
     <link>https://bigleon.github.io/tags/mysql/</link>
-    <description>Recent content in MySQL on Leon&#39;s blog</description>
+    <description>Recent content in MySQL on Your title</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>zh-CN</language>
     <lastBuildDate>Sun, 03 May 2020 20:49:43 +0800</lastBuildDate>
     
 	<atom:link href="https://bigleon.github.io/tags/mysql/index.xml" rel="self" type="application/rss+xml" />
@@ -17,7 +16,13 @@
       <pubDate>Sun, 03 May 2020 20:49:43 +0800</pubDate>
       
       <guid>https://bigleon.github.io/post/mysql8.0%E6%96%B0%E7%89%B9%E6%80%A7%E8%A7%A3%E8%AF%BB/</guid>
-      <description>MySQL 8.0 新特性解读 MySQL 8.0 2018/4/19 General Availability以来已经发发布了9个小版本。很多公司已经开始使用8.0版本尤其是官方主要精力在8.0版本的新特</description>
+      <description>MySQL 8.0 新特性解读  MySQL 8.0 2018/4/19 General Availability以来已经发发布了9个小版本。很多公司已经开始使用8.0版本尤其是官方主要精力在8.0版本的新特性和bug修改，8.0的MGR 持续的修复bug 和引入,MGR原生强一致高可用特性对于金融行业对于数据强一致的要是极大的吸引力。 2020/1/13 MySQL 8.0.19 新版本GA了,新年第一个版本。MySQL8.0以来新增新特性将近300个，本文将对新特性进行梳理。把其中重大特性所带来的影响将做一些说明希望不管是开发还是运维能从中找到自己期望的新特性能解决生产中的痛点。预计阅读完本篇文章大约5分钟。
+ 重点新特性： Hash Join   Mysql一直以来关于表连接只支持block-nested loop 算法。在最新的8.0.18支持了期望已久的Hash Join，对与多表连接中连接字段没有索引的场景下特别适合。这样再也不担心被驱动表连接字段忘记加索引导致线上SQL拖垮整个系统了。
+  目前MySQL对Hash Join支持也是有条件的：
+   每个连接当中，至少有一个等值连接条件；    在笛卡尔积场景下没有等值条件也会用上hash join      可以global 或者 session 对系统变量optimizer_switch中hash_join = on/off 进行控制（在8.0.19这个小版本已经弃用）
+  通过join_buffer_size可以调整hash连接表是否在内存或者落盘实现，这对整个速度会有比较大的影响。
+  下面是在mysql8.0中是否启用hash_join的场景下sql的变化。
+1. 查看优化器关于hash_join参数默认已经开启 MySQL 192.168.0.52:33060+ ssl SQL &amp;gt; show global variables like &amp;#39;%switch%%&amp;#39;\G; *************************** 1. row *************************** Variable_name: optimizer_switch Value: hash_join=on 2.</description>
     </item>
     
   </channel>
