@@ -115,7 +115,7 @@
 	cursor: pointer;
 	text-decoration: none;
 	background: transparent url('blank.gif'); /* helps IE */
-	-webkit-tap-highlight-color: rgba(0,0,0,0);
+	-webkit-tap-highlight-color: rgba(240,255,240,0);
 	z-index: 8040;
 }
 
