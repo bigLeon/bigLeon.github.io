@@ -192,112 +192,108 @@
 </li>
 <li>
 <p>下面是在mysql8.0中是否启用hash_join的场景下sql的变化。</p>
-<ul>
-<li>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#ae81ff">1</span>. <span style="color:#960050;background-color:#1e0010">查看优化器关于</span>hash_join参数默认已经开启
-      
-MySQL <span style="color:#ae81ff">192</span>.<span style="color:#ae81ff">168</span>.<span style="color:#ae81ff">0</span>.<span style="color:#ae81ff">52</span>:<span style="color:#ae81ff">33060</span><span style="color:#f92672">+</span> ssl <span style="color:#66d9ef">SQL</span> <span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">show</span> <span style="color:#66d9ef">global</span> variables <span style="color:#66d9ef">like</span> <span style="color:#e6db74">&#39;%switch%%&#39;</span><span style="color:#960050;background-color:#1e0010">\</span><span style="color:#66d9ef">G</span>;
-      
-<span style="color:#f92672">***************************</span> <span style="color:#ae81ff">1</span>. <span style="color:#66d9ef">row</span> <span style="color:#f92672">***************************</span>
-      
-Variable_name: optimizer_switch
-      
-          Value: hash_join<span style="color:#f92672">=</span><span style="color:#66d9ef">on</span>
-      
-      
-<span style="color:#ae81ff">2</span>. <span style="color:#960050;background-color:#1e0010">表结构</span>
-<span style="color:#66d9ef">CREATE</span> <span style="color:#66d9ef">TABLE</span> <span style="color:#f92672">`</span>t1<span style="color:#f92672">`</span> (
-  <span style="color:#f92672">`</span>c1<span style="color:#f92672">`</span> int(<span style="color:#ae81ff">11</span>) <span style="color:#66d9ef">NOT</span> <span style="color:#66d9ef">NULL</span>,
-  <span style="color:#f92672">`</span>c2<span style="color:#f92672">`</span> int(<span style="color:#ae81ff">11</span>) <span style="color:#66d9ef">DEFAULT</span> <span style="color:#66d9ef">NULL</span>,
-  <span style="color:#66d9ef">PRIMARY</span> <span style="color:#66d9ef">KEY</span> (<span style="color:#f92672">`</span>c1<span style="color:#f92672">`</span>)
-) ENGINE<span style="color:#f92672">=</span>InnoDB <span style="color:#66d9ef">DEFAULT</span> CHARSET<span style="color:#f92672">=</span>utf8mb4 <span style="color:#66d9ef">COLLATE</span><span style="color:#f92672">=</span>utf8mb4_0900_ai_ci
-      
-<span style="color:#66d9ef">CREATE</span> <span style="color:#66d9ef">TABLE</span> <span style="color:#f92672">`</span>t2<span style="color:#f92672">`</span> (
-  <span style="color:#f92672">`</span>c1<span style="color:#f92672">`</span> int(<span style="color:#ae81ff">11</span>) <span style="color:#66d9ef">NOT</span> <span style="color:#66d9ef">NULL</span>,
-  <span style="color:#f92672">`</span>c2<span style="color:#f92672">`</span> int(<span style="color:#ae81ff">11</span>) <span style="color:#66d9ef">DEFAULT</span> <span style="color:#66d9ef">NULL</span>,
-  <span style="color:#66d9ef">PRIMARY</span> <span style="color:#66d9ef">KEY</span> (<span style="color:#f92672">`</span>c1<span style="color:#f92672">`</span>)
-) ENGINE<span style="color:#f92672">=</span>InnoDB <span style="color:#66d9ef">DEFAULT</span> CHARSET<span style="color:#f92672">=</span>utf8mb4 <span style="color:#66d9ef">COLLATE</span><span style="color:#f92672">=</span>utf8mb4_0900_ai_ci
-      
- MySQL  <span style="color:#ae81ff">192</span>.<span style="color:#ae81ff">168</span>.<span style="color:#ae81ff">0</span>.<span style="color:#ae81ff">52</span>:<span style="color:#ae81ff">33060</span><span style="color:#f92672">+</span> ssl  mgrtest  <span style="color:#66d9ef">SQL</span> <span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">select</span> <span style="color:#66d9ef">count</span>(<span style="color:#f92672">*</span>) <span style="color:#66d9ef">from</span> t1;
-<span style="color:#f92672">+</span><span style="color:#75715e">----------+
-</span><span style="color:#75715e"></span><span style="color:#f92672">|</span> <span style="color:#66d9ef">count</span>(<span style="color:#f92672">*</span>) <span style="color:#f92672">|</span>
-<span style="color:#f92672">+</span><span style="color:#75715e">----------+
-</span><span style="color:#75715e"></span><span style="color:#f92672">|</span>     <span style="color:#ae81ff">7215</span> <span style="color:#f92672">|</span>
-<span style="color:#f92672">+</span><span style="color:#75715e">----------+
-</span><span style="color:#75715e"></span>      
- MySQL  <span style="color:#ae81ff">192</span>.<span style="color:#ae81ff">168</span>.<span style="color:#ae81ff">0</span>.<span style="color:#ae81ff">52</span>:<span style="color:#ae81ff">33060</span><span style="color:#f92672">+</span> ssl  mgrtest  <span style="color:#66d9ef">SQL</span> <span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">select</span> <span style="color:#66d9ef">count</span>(<span style="color:#f92672">*</span>) <span style="color:#66d9ef">from</span> t2;
-<span style="color:#f92672">+</span><span style="color:#75715e">----------+
-</span><span style="color:#75715e"></span><span style="color:#f92672">|</span> <span style="color:#66d9ef">count</span>(<span style="color:#f92672">*</span>) <span style="color:#f92672">|</span>
-<span style="color:#f92672">+</span><span style="color:#75715e">----------+
-</span><span style="color:#75715e"></span><span style="color:#f92672">|</span>     <span style="color:#ae81ff">7215</span> <span style="color:#f92672">|</span>
-<span style="color:#f92672">+</span><span style="color:#75715e">----------+
-</span><span style="color:#75715e"></span>      
-<span style="color:#ae81ff">3</span>. <span style="color:#960050;background-color:#1e0010">查看表</span>t1<span style="color:#f92672">/</span>t2用无索引的列c2做关联
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"> <span style="color:#ae81ff">1</span>. <span style="color:#960050;background-color:#1e0010">查看优化器关于</span>hash_join参数默认已经开启
+     
+ MySQL <span style="color:#ae81ff">192</span>.<span style="color:#ae81ff">168</span>.<span style="color:#ae81ff">0</span>.<span style="color:#ae81ff">52</span>:<span style="color:#ae81ff">33060</span><span style="color:#f92672">+</span> ssl <span style="color:#66d9ef">SQL</span> <span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">show</span> <span style="color:#66d9ef">global</span> variables <span style="color:#66d9ef">like</span> <span style="color:#e6db74">&#39;%switch%%&#39;</span><span style="color:#960050;background-color:#1e0010">\</span><span style="color:#66d9ef">G</span>;
+     
+ <span style="color:#f92672">***************************</span> <span style="color:#ae81ff">1</span>. <span style="color:#66d9ef">row</span> <span style="color:#f92672">***************************</span>
+     
+ Variable_name: optimizer_switch
+     
+           Value: hash_join<span style="color:#f92672">=</span><span style="color:#66d9ef">on</span>
+     
+     
+ <span style="color:#ae81ff">2</span>. <span style="color:#960050;background-color:#1e0010">表结构</span>
+ <span style="color:#66d9ef">CREATE</span> <span style="color:#66d9ef">TABLE</span> <span style="color:#f92672">`</span>t1<span style="color:#f92672">`</span> (
+   <span style="color:#f92672">`</span>c1<span style="color:#f92672">`</span> int(<span style="color:#ae81ff">11</span>) <span style="color:#66d9ef">NOT</span> <span style="color:#66d9ef">NULL</span>,
+   <span style="color:#f92672">`</span>c2<span style="color:#f92672">`</span> int(<span style="color:#ae81ff">11</span>) <span style="color:#66d9ef">DEFAULT</span> <span style="color:#66d9ef">NULL</span>,
+   <span style="color:#66d9ef">PRIMARY</span> <span style="color:#66d9ef">KEY</span> (<span style="color:#f92672">`</span>c1<span style="color:#f92672">`</span>)
+ ) ENGINE<span style="color:#f92672">=</span>InnoDB <span style="color:#66d9ef">DEFAULT</span> CHARSET<span style="color:#f92672">=</span>utf8mb4 <span style="color:#66d9ef">COLLATE</span><span style="color:#f92672">=</span>utf8mb4_0900_ai_ci
+     
+ <span style="color:#66d9ef">CREATE</span> <span style="color:#66d9ef">TABLE</span> <span style="color:#f92672">`</span>t2<span style="color:#f92672">`</span> (
+   <span style="color:#f92672">`</span>c1<span style="color:#f92672">`</span> int(<span style="color:#ae81ff">11</span>) <span style="color:#66d9ef">NOT</span> <span style="color:#66d9ef">NULL</span>,
+   <span style="color:#f92672">`</span>c2<span style="color:#f92672">`</span> int(<span style="color:#ae81ff">11</span>) <span style="color:#66d9ef">DEFAULT</span> <span style="color:#66d9ef">NULL</span>,
+   <span style="color:#66d9ef">PRIMARY</span> <span style="color:#66d9ef">KEY</span> (<span style="color:#f92672">`</span>c1<span style="color:#f92672">`</span>)
+ ) ENGINE<span style="color:#f92672">=</span>InnoDB <span style="color:#66d9ef">DEFAULT</span> CHARSET<span style="color:#f92672">=</span>utf8mb4 <span style="color:#66d9ef">COLLATE</span><span style="color:#f92672">=</span>utf8mb4_0900_ai_ci
+     
+  MySQL  <span style="color:#ae81ff">192</span>.<span style="color:#ae81ff">168</span>.<span style="color:#ae81ff">0</span>.<span style="color:#ae81ff">52</span>:<span style="color:#ae81ff">33060</span><span style="color:#f92672">+</span> ssl  mgrtest  <span style="color:#66d9ef">SQL</span> <span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">select</span> <span style="color:#66d9ef">count</span>(<span style="color:#f92672">*</span>) <span style="color:#66d9ef">from</span> t1;
+ <span style="color:#f92672">+</span><span style="color:#75715e">----------+
+</span><span style="color:#75715e"></span> <span style="color:#f92672">|</span> <span style="color:#66d9ef">count</span>(<span style="color:#f92672">*</span>) <span style="color:#f92672">|</span>
+ <span style="color:#f92672">+</span><span style="color:#75715e">----------+
+</span><span style="color:#75715e"></span> <span style="color:#f92672">|</span>     <span style="color:#ae81ff">7215</span> <span style="color:#f92672">|</span>
+ <span style="color:#f92672">+</span><span style="color:#75715e">----------+
+</span><span style="color:#75715e"></span>     
+  MySQL  <span style="color:#ae81ff">192</span>.<span style="color:#ae81ff">168</span>.<span style="color:#ae81ff">0</span>.<span style="color:#ae81ff">52</span>:<span style="color:#ae81ff">33060</span><span style="color:#f92672">+</span> ssl  mgrtest  <span style="color:#66d9ef">SQL</span> <span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">select</span> <span style="color:#66d9ef">count</span>(<span style="color:#f92672">*</span>) <span style="color:#66d9ef">from</span> t2;
+ <span style="color:#f92672">+</span><span style="color:#75715e">----------+
+</span><span style="color:#75715e"></span> <span style="color:#f92672">|</span> <span style="color:#66d9ef">count</span>(<span style="color:#f92672">*</span>) <span style="color:#f92672">|</span>
+ <span style="color:#f92672">+</span><span style="color:#75715e">----------+
+</span><span style="color:#75715e"></span> <span style="color:#f92672">|</span>     <span style="color:#ae81ff">7215</span> <span style="color:#f92672">|</span>
+ <span style="color:#f92672">+</span><span style="color:#75715e">----------+
+</span><span style="color:#75715e"></span>     
+ <span style="color:#ae81ff">3</span>. <span style="color:#960050;background-color:#1e0010">查看表</span>t1<span style="color:#f92672">/</span>t2用无索引的列c2做关联
+  MySQL  <span style="color:#ae81ff">192</span>.<span style="color:#ae81ff">168</span>.<span style="color:#ae81ff">0</span>.<span style="color:#ae81ff">52</span>:<span style="color:#ae81ff">33060</span><span style="color:#f92672">+</span> ssl  mgrtest  <span style="color:#66d9ef">SQL</span> <span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">explain</span> format<span style="color:#f92672">=</span>tree <span style="color:#66d9ef">select</span> <span style="color:#66d9ef">count</span>(<span style="color:#f92672">*</span>) <span style="color:#66d9ef">from</span> t1  <span style="color:#66d9ef">join</span> t2 <span style="color:#66d9ef">on</span> t1.c2 <span style="color:#f92672">=</span> t2.c2 ;
+ <span style="color:#f92672">+</span><span style="color:#75715e">----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+</span><span style="color:#75715e"></span> <span style="color:#f92672">|</span> <span style="color:#66d9ef">EXPLAIN</span>                                                                                                                                                                                                                    <span style="color:#f92672">|</span>
+ <span style="color:#f92672">+</span><span style="color:#75715e">----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+</span><span style="color:#75715e"></span> <span style="color:#f92672">|</span> <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Aggregate</span>: <span style="color:#66d9ef">count</span>(<span style="color:#ae81ff">0</span>)
+     <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Inner</span> hash <span style="color:#66d9ef">join</span> (t2.c2 <span style="color:#f92672">=</span> t1.c2)  (cost<span style="color:#f92672">=</span><span style="color:#ae81ff">5206351</span>.<span style="color:#ae81ff">53</span> <span style="color:#66d9ef">rows</span><span style="color:#f92672">=</span><span style="color:#ae81ff">5205623</span>)
+         <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Table</span> scan <span style="color:#66d9ef">on</span> t2  (cost<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>.<span style="color:#ae81ff">01</span> <span style="color:#66d9ef">rows</span><span style="color:#f92672">=</span><span style="color:#ae81ff">7215</span>)
+         <span style="color:#f92672">-&gt;</span> Hash
+             <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Table</span> scan <span style="color:#66d9ef">on</span> t1  (cost<span style="color:#f92672">=</span><span style="color:#ae81ff">725</span>.<span style="color:#ae81ff">25</span> <span style="color:#66d9ef">rows</span><span style="color:#f92672">=</span><span style="color:#ae81ff">7215</span>)
+  <span style="color:#f92672">|</span>
+ <span style="color:#f92672">+</span><span style="color:#75715e">----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+</span><span style="color:#75715e"></span> <span style="color:#ae81ff">1</span> <span style="color:#66d9ef">row</span> <span style="color:#66d9ef">in</span> <span style="color:#66d9ef">set</span> (<span style="color:#ae81ff">0</span>.<span style="color:#ae81ff">0009</span> sec)
+     
+ <span style="color:#ae81ff">4</span>. <span style="color:#960050;background-color:#1e0010">使用</span>hash_join执行速度
+  MySQL  <span style="color:#ae81ff">192</span>.<span style="color:#ae81ff">168</span>.<span style="color:#ae81ff">0</span>.<span style="color:#ae81ff">52</span>:<span style="color:#ae81ff">33060</span><span style="color:#f92672">+</span> ssl  mgrtest  <span style="color:#66d9ef">SQL</span> <span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">select</span> <span style="color:#66d9ef">count</span>(<span style="color:#f92672">*</span>) <span style="color:#66d9ef">from</span> t1  <span style="color:#66d9ef">join</span> t2 <span style="color:#66d9ef">on</span> t1.c2 <span style="color:#f92672">=</span> t2.c2 ;
+ <span style="color:#f92672">+</span><span style="color:#75715e">----------+
+</span><span style="color:#75715e"></span> <span style="color:#f92672">|</span> <span style="color:#66d9ef">count</span>(<span style="color:#f92672">*</span>) <span style="color:#f92672">|</span>
+ <span style="color:#f92672">+</span><span style="color:#75715e">----------+
+</span><span style="color:#75715e"></span> <span style="color:#f92672">|</span>     <span style="color:#ae81ff">7215</span> <span style="color:#f92672">|</span>
+ <span style="color:#f92672">+</span><span style="color:#75715e">----------+
+</span><span style="color:#75715e"></span> <span style="color:#ae81ff">1</span> <span style="color:#66d9ef">row</span> <span style="color:#66d9ef">in</span> <span style="color:#66d9ef">set</span> (<span style="color:#ae81ff">0</span>.<span style="color:#ae81ff">0045</span> sec)
+     
+ <span style="color:#ae81ff">5</span>. <span style="color:#960050;background-color:#1e0010">关掉</span>hash join功能
+     
+  MySQL  <span style="color:#ae81ff">192</span>.<span style="color:#ae81ff">168</span>.<span style="color:#ae81ff">0</span>.<span style="color:#ae81ff">52</span>:<span style="color:#ae81ff">33060</span><span style="color:#f92672">+</span> ssl  mgrtest  <span style="color:#66d9ef">SQL</span> <span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">show</span> variables <span style="color:#66d9ef">like</span> <span style="color:#e6db74">&#39;%switch%&#39;</span>;
+     
+ <span style="color:#f92672">|</span> Variable_name    <span style="color:#f92672">|</span> Value                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
+     
+ <span style="color:#f92672">|</span> optimizer_switch <span style="color:#f92672">|</span> hash_join<span style="color:#f92672">=</span><span style="color:#66d9ef">off</span> <span style="color:#f92672">|</span>
+     
+     
+     
  MySQL  <span style="color:#ae81ff">192</span>.<span style="color:#ae81ff">168</span>.<span style="color:#ae81ff">0</span>.<span style="color:#ae81ff">52</span>:<span style="color:#ae81ff">33060</span><span style="color:#f92672">+</span> ssl  mgrtest  <span style="color:#66d9ef">SQL</span> <span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">explain</span> format<span style="color:#f92672">=</span>tree <span style="color:#66d9ef">select</span> <span style="color:#66d9ef">count</span>(<span style="color:#f92672">*</span>) <span style="color:#66d9ef">from</span> t1  <span style="color:#66d9ef">join</span> t2 <span style="color:#66d9ef">on</span> t1.c2 <span style="color:#f92672">=</span> t2.c2 ;
-<span style="color:#f92672">+</span><span style="color:#75715e">----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-</span><span style="color:#75715e"></span><span style="color:#f92672">|</span> <span style="color:#66d9ef">EXPLAIN</span>                                                                                                                                                                                                                    <span style="color:#f92672">|</span>
-<span style="color:#f92672">+</span><span style="color:#75715e">----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-</span><span style="color:#75715e"></span><span style="color:#f92672">|</span> <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Aggregate</span>: <span style="color:#66d9ef">count</span>(<span style="color:#ae81ff">0</span>)
-    <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Inner</span> hash <span style="color:#66d9ef">join</span> (t2.c2 <span style="color:#f92672">=</span> t1.c2)  (cost<span style="color:#f92672">=</span><span style="color:#ae81ff">5206351</span>.<span style="color:#ae81ff">53</span> <span style="color:#66d9ef">rows</span><span style="color:#f92672">=</span><span style="color:#ae81ff">5205623</span>)
-        <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Table</span> scan <span style="color:#66d9ef">on</span> t2  (cost<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>.<span style="color:#ae81ff">01</span> <span style="color:#66d9ef">rows</span><span style="color:#f92672">=</span><span style="color:#ae81ff">7215</span>)
-        <span style="color:#f92672">-&gt;</span> Hash
-            <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Table</span> scan <span style="color:#66d9ef">on</span> t1  (cost<span style="color:#f92672">=</span><span style="color:#ae81ff">725</span>.<span style="color:#ae81ff">25</span> <span style="color:#66d9ef">rows</span><span style="color:#f92672">=</span><span style="color:#ae81ff">7215</span>)
- <span style="color:#f92672">|</span>
-<span style="color:#f92672">+</span><span style="color:#75715e">----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-</span><span style="color:#75715e"></span><span style="color:#ae81ff">1</span> <span style="color:#66d9ef">row</span> <span style="color:#66d9ef">in</span> <span style="color:#66d9ef">set</span> (<span style="color:#ae81ff">0</span>.<span style="color:#ae81ff">0009</span> sec)
-      
-<span style="color:#ae81ff">4</span>. <span style="color:#960050;background-color:#1e0010">使用</span>hash_join执行速度
- MySQL  <span style="color:#ae81ff">192</span>.<span style="color:#ae81ff">168</span>.<span style="color:#ae81ff">0</span>.<span style="color:#ae81ff">52</span>:<span style="color:#ae81ff">33060</span><span style="color:#f92672">+</span> ssl  mgrtest  <span style="color:#66d9ef">SQL</span> <span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">select</span> <span style="color:#66d9ef">count</span>(<span style="color:#f92672">*</span>) <span style="color:#66d9ef">from</span> t1  <span style="color:#66d9ef">join</span> t2 <span style="color:#66d9ef">on</span> t1.c2 <span style="color:#f92672">=</span> t2.c2 ;
-<span style="color:#f92672">+</span><span style="color:#75715e">----------+
-</span><span style="color:#75715e"></span><span style="color:#f92672">|</span> <span style="color:#66d9ef">count</span>(<span style="color:#f92672">*</span>) <span style="color:#f92672">|</span>
-<span style="color:#f92672">+</span><span style="color:#75715e">----------+
-</span><span style="color:#75715e"></span><span style="color:#f92672">|</span>     <span style="color:#ae81ff">7215</span> <span style="color:#f92672">|</span>
-<span style="color:#f92672">+</span><span style="color:#75715e">----------+
-</span><span style="color:#75715e"></span><span style="color:#ae81ff">1</span> <span style="color:#66d9ef">row</span> <span style="color:#66d9ef">in</span> <span style="color:#66d9ef">set</span> (<span style="color:#ae81ff">0</span>.<span style="color:#ae81ff">0045</span> sec)
-      
-<span style="color:#ae81ff">5</span>. <span style="color:#960050;background-color:#1e0010">关掉</span>hash join功能
-      
- MySQL  <span style="color:#ae81ff">192</span>.<span style="color:#ae81ff">168</span>.<span style="color:#ae81ff">0</span>.<span style="color:#ae81ff">52</span>:<span style="color:#ae81ff">33060</span><span style="color:#f92672">+</span> ssl  mgrtest  <span style="color:#66d9ef">SQL</span> <span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">show</span> variables <span style="color:#66d9ef">like</span> <span style="color:#e6db74">&#39;%switch%&#39;</span>;
-      
-<span style="color:#f92672">|</span> Variable_name    <span style="color:#f92672">|</span> Value                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
-      
-<span style="color:#f92672">|</span> optimizer_switch <span style="color:#f92672">|</span> hash_join<span style="color:#f92672">=</span><span style="color:#66d9ef">off</span> <span style="color:#f92672">|</span>
-      
-      
-      
-MySQL  <span style="color:#ae81ff">192</span>.<span style="color:#ae81ff">168</span>.<span style="color:#ae81ff">0</span>.<span style="color:#ae81ff">52</span>:<span style="color:#ae81ff">33060</span><span style="color:#f92672">+</span> ssl  mgrtest  <span style="color:#66d9ef">SQL</span> <span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">explain</span> format<span style="color:#f92672">=</span>tree <span style="color:#66d9ef">select</span> <span style="color:#66d9ef">count</span>(<span style="color:#f92672">*</span>) <span style="color:#66d9ef">from</span> t1  <span style="color:#66d9ef">join</span> t2 <span style="color:#66d9ef">on</span> t1.c2 <span style="color:#f92672">=</span> t2.c2 ;
-<span style="color:#f92672">+</span><span style="color:#75715e">----------------------------------------+
-</span><span style="color:#75715e"></span><span style="color:#f92672">|</span> <span style="color:#66d9ef">EXPLAIN</span>                                <span style="color:#f92672">|</span>
-<span style="color:#f92672">+</span><span style="color:#75715e">----------------------------------------+
-</span><span style="color:#75715e"></span><span style="color:#f92672">|</span> <span style="color:#f92672">&lt;</span><span style="color:#66d9ef">not</span> executable <span style="color:#66d9ef">by</span> iterator executor<span style="color:#f92672">&gt;</span>
- <span style="color:#f92672">|</span>
-<span style="color:#f92672">+</span><span style="color:#75715e">----------------------------------------+
-</span><span style="color:#75715e"></span><span style="color:#ae81ff">1</span> <span style="color:#66d9ef">row</span> <span style="color:#66d9ef">in</span> <span style="color:#66d9ef">set</span> (<span style="color:#ae81ff">0</span>.<span style="color:#ae81ff">0010</span> sec)
-      
-<span style="color:#75715e">--未使用hash_join功能执行同一条sql的速度
-</span><span style="color:#75715e"></span> MySQL  <span style="color:#ae81ff">192</span>.<span style="color:#ae81ff">168</span>.<span style="color:#ae81ff">0</span>.<span style="color:#ae81ff">52</span>:<span style="color:#ae81ff">33060</span><span style="color:#f92672">+</span> ssl  mgrtest  <span style="color:#66d9ef">SQL</span> <span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">select</span> <span style="color:#66d9ef">count</span>(<span style="color:#f92672">*</span>) <span style="color:#66d9ef">from</span> t1  <span style="color:#66d9ef">join</span> t2 <span style="color:#66d9ef">on</span> t1.c2 <span style="color:#f92672">=</span> t2.c2 ;
-<span style="color:#f92672">+</span><span style="color:#75715e">----------+
-</span><span style="color:#75715e"></span><span style="color:#f92672">|</span> <span style="color:#66d9ef">count</span>(<span style="color:#f92672">*</span>) <span style="color:#f92672">|</span>
-<span style="color:#f92672">+</span><span style="color:#75715e">----------+
-</span><span style="color:#75715e"></span><span style="color:#f92672">|</span>     <span style="color:#ae81ff">7215</span> <span style="color:#f92672">|</span>
-<span style="color:#f92672">+</span><span style="color:#75715e">----------+
-</span><span style="color:#75715e"></span><span style="color:#ae81ff">1</span> <span style="color:#66d9ef">row</span> <span style="color:#66d9ef">in</span> <span style="color:#66d9ef">set</span> (<span style="color:#ae81ff">2</span>.<span style="color:#ae81ff">2888</span> sec)
-      
-      
-<span style="color:#ae81ff">6</span>. <span style="color:#960050;background-color:#1e0010">两者速度差了</span><span style="color:#ae81ff">508</span><span style="color:#960050;background-color:#1e0010">倍，由此可见</span>hash_join功能强大
- MySQL  <span style="color:#ae81ff">192</span>.<span style="color:#ae81ff">168</span>.<span style="color:#ae81ff">0</span>.<span style="color:#ae81ff">52</span>:<span style="color:#ae81ff">33060</span><span style="color:#f92672">+</span> ssl  mgrtest  <span style="color:#66d9ef">SQL</span> <span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">select</span> <span style="color:#ae81ff">2</span>.<span style="color:#ae81ff">2888</span><span style="color:#f92672">/</span><span style="color:#ae81ff">0</span>.<span style="color:#ae81ff">0045</span>;
-<span style="color:#f92672">+</span><span style="color:#75715e">---------------+
-</span><span style="color:#75715e"></span><span style="color:#f92672">|</span> <span style="color:#ae81ff">2</span>.<span style="color:#ae81ff">2888</span><span style="color:#f92672">/</span><span style="color:#ae81ff">0</span>.<span style="color:#ae81ff">0045</span> <span style="color:#f92672">|</span>
-<span style="color:#f92672">+</span><span style="color:#75715e">---------------+
-</span><span style="color:#75715e"></span><span style="color:#f92672">|</span>  <span style="color:#ae81ff">508</span>.<span style="color:#ae81ff">62222222</span> <span style="color:#f92672">|</span>
-<span style="color:#f92672">+</span><span style="color:#75715e">---------------+
-</span><span style="color:#75715e"></span><span style="color:#ae81ff">1</span> <span style="color:#66d9ef">row</span> <span style="color:#66d9ef">in</span> <span style="color:#66d9ef">set</span> (<span style="color:#ae81ff">0</span>.<span style="color:#ae81ff">0005</span> sec)
-      
-      
-      
+ <span style="color:#f92672">+</span><span style="color:#75715e">----------------------------------------+
+</span><span style="color:#75715e"></span> <span style="color:#f92672">|</span> <span style="color:#66d9ef">EXPLAIN</span>                                <span style="color:#f92672">|</span>
+ <span style="color:#f92672">+</span><span style="color:#75715e">----------------------------------------+
+</span><span style="color:#75715e"></span> <span style="color:#f92672">|</span> <span style="color:#f92672">&lt;</span><span style="color:#66d9ef">not</span> executable <span style="color:#66d9ef">by</span> iterator executor<span style="color:#f92672">&gt;</span>
+  <span style="color:#f92672">|</span>
+ <span style="color:#f92672">+</span><span style="color:#75715e">----------------------------------------+
+</span><span style="color:#75715e"></span> <span style="color:#ae81ff">1</span> <span style="color:#66d9ef">row</span> <span style="color:#66d9ef">in</span> <span style="color:#66d9ef">set</span> (<span style="color:#ae81ff">0</span>.<span style="color:#ae81ff">0010</span> sec)
+     
+ <span style="color:#75715e">--未使用hash_join功能执行同一条sql的速度
+</span><span style="color:#75715e"></span>  MySQL  <span style="color:#ae81ff">192</span>.<span style="color:#ae81ff">168</span>.<span style="color:#ae81ff">0</span>.<span style="color:#ae81ff">52</span>:<span style="color:#ae81ff">33060</span><span style="color:#f92672">+</span> ssl  mgrtest  <span style="color:#66d9ef">SQL</span> <span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">select</span> <span style="color:#66d9ef">count</span>(<span style="color:#f92672">*</span>) <span style="color:#66d9ef">from</span> t1  <span style="color:#66d9ef">join</span> t2 <span style="color:#66d9ef">on</span> t1.c2 <span style="color:#f92672">=</span> t2.c2 ;
+ <span style="color:#f92672">+</span><span style="color:#75715e">----------+
+</span><span style="color:#75715e"></span> <span style="color:#f92672">|</span> <span style="color:#66d9ef">count</span>(<span style="color:#f92672">*</span>) <span style="color:#f92672">|</span>
+ <span style="color:#f92672">+</span><span style="color:#75715e">----------+
+</span><span style="color:#75715e"></span> <span style="color:#f92672">|</span>     <span style="color:#ae81ff">7215</span> <span style="color:#f92672">|</span>
+ <span style="color:#f92672">+</span><span style="color:#75715e">----------+
+</span><span style="color:#75715e"></span> <span style="color:#ae81ff">1</span> <span style="color:#66d9ef">row</span> <span style="color:#66d9ef">in</span> <span style="color:#66d9ef">set</span> (<span style="color:#ae81ff">2</span>.<span style="color:#ae81ff">2888</span> sec)
+     
+     
+ <span style="color:#ae81ff">6</span>. <span style="color:#960050;background-color:#1e0010">两者速度差了</span><span style="color:#ae81ff">508</span><span style="color:#960050;background-color:#1e0010">倍，由此可见</span>hash_join功能强大
+  MySQL  <span style="color:#ae81ff">192</span>.<span style="color:#ae81ff">168</span>.<span style="color:#ae81ff">0</span>.<span style="color:#ae81ff">52</span>:<span style="color:#ae81ff">33060</span><span style="color:#f92672">+</span> ssl  mgrtest  <span style="color:#66d9ef">SQL</span> <span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">select</span> <span style="color:#ae81ff">2</span>.<span style="color:#ae81ff">2888</span><span style="color:#f92672">/</span><span style="color:#ae81ff">0</span>.<span style="color:#ae81ff">0045</span>;
+ <span style="color:#f92672">+</span><span style="color:#75715e">---------------+
+</span><span style="color:#75715e"></span> <span style="color:#f92672">|</span> <span style="color:#ae81ff">2</span>.<span style="color:#ae81ff">2888</span><span style="color:#f92672">/</span><span style="color:#ae81ff">0</span>.<span style="color:#ae81ff">0045</span> <span style="color:#f92672">|</span>
+ <span style="color:#f92672">+</span><span style="color:#75715e">---------------+
+</span><span style="color:#75715e"></span> <span style="color:#f92672">|</span>  <span style="color:#ae81ff">508</span>.<span style="color:#ae81ff">62222222</span> <span style="color:#f92672">|</span>
+ <span style="color:#f92672">+</span><span style="color:#75715e">---------------+
+</span><span style="color:#75715e"></span> <span style="color:#ae81ff">1</span> <span style="color:#66d9ef">row</span> <span style="color:#66d9ef">in</span> <span style="color:#66d9ef">set</span> (<span style="color:#ae81ff">0</span>.<span style="color:#ae81ff">0005</span> sec)
+     
+     
+     
 </code></pre></div></li>
-</ul>
-</li>
 </ul>
 </li>
 </ul>
@@ -405,7 +401,6 @@ custinfo JSON
 <li>
 <p>引入克隆组件，增强了节点自动恢复，极大方便了MGR节点增加</p>
 </li>
-<li></li>
 </ul>
 <h4 id="其他新特性列举">其他新特性列举：</h4>
 <ul>
