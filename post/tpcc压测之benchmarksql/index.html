@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <title>TPCC压测之BenchmarkSQL // Leon&#39;s blog</title>
+    <meta charset="utf-8" />
+    <meta name="generator" content="Hugo 0.69.2" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="author" content="Leon Tian" />
+    <meta name="description" content="如何使用benchmarksql压测oracle" />
+    <link rel="stylesheet" href="https://bigleon.github.io/css/main.min.61bb32028587f24ca28522d8d197970c7ef33284e5fffb45a75fcbbb2dbc4dcb.css" />
+
+    
+    <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="TPCC压测之BenchmarkSQL"/>
+<meta name="twitter:description" content="如何使用benchmarksql压测oracle"/>
+
+    <meta property="og:title" content="TPCC压测之BenchmarkSQL" />
+<meta property="og:description" content="如何使用benchmarksql压测oracle" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://bigleon.github.io/post/tpcc%E5%8E%8B%E6%B5%8B%E4%B9%8Bbenchmarksql/" />
+<meta property="article:published_time" content="2020-05-07T13:46:47+08:00" />
+<meta property="article:modified_time" content="2020-05-07T13:46:47+08:00" />
+
+
+  </head>
+  <body>
+    <header class="app-header">
+      <a href="https://bigleon.github.io/"><img class="app-header-avatar" src="/avatar.jpg" alt="Leon Tian" /></a>
+      <h1>Leon&#39;s blog</h1>
+      <p>说说数据库那些事儿</p>
+      <div class="app-header-social">
+        
+          <a target="_blank" href="https://github.com/gohugoio" rel="noreferrer noopener"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-github">
+  <title>github</title>
+  <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+</svg></a>
+        
+      </div>
+    </header>
+    <main class="app-container">
+      
+  <article class="post">
+    <header class="post-header">
+      <h1 class ="post-title">TPCC压测之BenchmarkSQL</h1>
+      <div class="post-meta">
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-calendar">
+  <title>calendar</title>
+  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line>
+</svg>
+          May 7, 2020
+        </div>
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-clock">
+  <title>clock</title>
+  <circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>
+</svg>
+          2 min read
+        </div><div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tag">
+  <title>tag</title>
+  <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7" y2="7"></line>
+</svg>
+          <a class="tag" href="https://bigleon.github.io/tags/%E5%8E%8B%E6%B5%8B/">压测</a></div></div>
+    </header>
+    <div class="post-content">
+      <h1 id="tpcc压测之benchmarksql">TPCC压测之BenchmarkSQL</h1>
+<blockquote>
+<p>Transaction Processing Performance Council (TPC) 事务处理性能委员会，是一家非盈利IT组织，他们的目的是定义数据库基准并且向产业界推广可验证的性能数据库测试。TPC-C在过去20年不管是在业界还是学术界都是应用最为广泛的OLTP压测工具。他由频繁更新和低频的索引扫描短事务组成。本文主要讲解使用benchmarksql对oracle进行tpcc压测。</p>
+</blockquote>
+<h3 id="tpcc原理">TPCC原理</h3>
+<ul>
+<li>
+<p>TPC-C压测作为一项基准测试，它并不能完整的展现生产上业务的多样性的操作的，而是保留此类活动的基本特征：如系统利用率和操作复杂程度，它的各种操作是成比例的。整个基准测试描述的是一家批发供应商，其分布的多个销售区和相关仓库。 随着公司业务的扩展，需要创建新的仓库和相关销售区。 每个区域仓库覆盖10个销售地区。 每个地区为3,000位客户提供服务。 所有仓库保留公司出售的100,000件商品的库存。 下图说明了TPC-C业务环境的仓库，区域和客户层次结构。</p>
+</li>
+<li>
+<p>tpcc模型是批发供应商oltp场景，包含客户创建订单，派送订单，支付。tpcc的库由9张表组成，一张是固定大小不变的，其中四张表和仓库数量大小而按比增加或者减小，另外四张表会由于运行表的记录数会不断地增长。压测包含五种交易类型及其比例：</p>
+<ol>
+<li>neworder 45% 属于中量级事务会有1%失败率由于无效输入</li>
+<li>payment  43% 属于短事务，为已存在的订单做支付动作</li>
+<li>orderstatus 4% 属于只读事务用于计算运输装状态和订单line item</li>
+<li>Delivery 4%  是最大和最具争议的更新事务。会查询每个仓库中没有交付的订单更新为交付状态</li>
+<li>stocklevel 4% 属于只读事务，加入平均200 order line 及相应的库存用以生成报告</li>
+</ol>
+</li>
+</ul>
+<h3 id="使用benchmarksql压测">使用benchmarksql压测</h3>
+<ul>
+<li>
+<p>安装Java环境</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#75715e">## benchmarksql-test-oracle</span>
+<span style="color:#75715e">## 2020/1/16</span>
+<span style="color:#75715e">## install JDK1.8</span>
+tar -zxvf  jdk-8u181-linux-x64.tar.gz -C /usr/local
+vi /etc/profile
+export JAVA_HOME<span style="color:#f92672">=</span>/usr/local/jdk1.8.0_181
+export JRE_HOME<span style="color:#f92672">=</span><span style="color:#e6db74">${</span>JAVA_HOME<span style="color:#e6db74">}</span>/jre
+export CLASSPATH<span style="color:#f92672">=</span>.:<span style="color:#e6db74">${</span>JAVA_HOME<span style="color:#e6db74">}</span>/lib:<span style="color:#e6db74">${</span>JRE_HOME<span style="color:#e6db74">}</span>/lib:$CLASSPATH
+export JAVA_PATH<span style="color:#f92672">=</span><span style="color:#e6db74">${</span>JAVA_HOME<span style="color:#e6db74">}</span>/bin:<span style="color:#e6db74">${</span>JRE_HOME<span style="color:#e6db74">}</span>/bin
+export PATH<span style="color:#f92672">=</span>$PATH:<span style="color:#e6db74">${</span>JAVA_PATH<span style="color:#e6db74">}</span>
+source /etc/profile
+java -version
+</code></pre></div></li>
+<li>
+<p>benchmarksql下载安装</p>
+</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#75715e">#安装包下载地址</span>
+https://sourceforge.net/projects/benchmarksql/
+
+<span style="color:#75715e">#解压&amp;copy jdbc jar包到benchmarksql/lib/oracle</span>
+cd  /home/oracle
+unzip benchmarksql-5.0.zip
+cd benchmarksql-5.0
+cp ~/oracle/product/12.1.0/db_1/jdbc/lib/ojdbc8.jar   lib/oracle
+
+
+<span style="color:#75715e"># 安装源码编译工具ant</span>
+yum -y install ant
+export CLASSPATH<span style="color:#f92672">=</span>.:/usr/share/java/ant-launcher.jar:<span style="color:#e6db74">${</span>CLASSPATH<span style="color:#e6db74">}</span>
+
+<span style="color:#75715e"># 编译benchmarksql源码</span>
+ant -buildfile ./build.xml
+</code></pre></div><ul>
+<li>配置文件设置</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#75715e"># 配置benchmarksql压测配置文件</span>
+<span style="color:#75715e"># configure props.ora</span>
+cd run/
+cp props.ora my_props.ora
+vi my_props.ora
+db<span style="color:#f92672">=</span>oracle
+driver<span style="color:#f92672">=</span>oracle.jdbc.driver.OracleDriver
+conn<span style="color:#f92672">=</span>jdbc:oracle:thin:@localhost:1521:orcl
+user<span style="color:#f92672">=</span>benchmarksql
+password<span style="color:#f92672">=</span>benchmarksql
+// 设定仓库数
+warehouses<span style="color:#f92672">=</span><span style="color:#ae81ff">20</span>
+loadWorkers<span style="color:#f92672">=</span><span style="color:#ae81ff">4</span>
+// 并发数
+terminals<span style="color:#f92672">=</span><span style="color:#ae81ff">64</span>
+runTxnsPerTerminal<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>
+// 压测时间
+runMins<span style="color:#f92672">=</span><span style="color:#ae81ff">10</span>
+//每分钟的事务
+limitTxnsPerMin<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>
+//The following five values must add up to <span style="color:#ae81ff">100</span>
+newOrderWeight<span style="color:#f92672">=</span><span style="color:#ae81ff">45</span>
+paymentWeight<span style="color:#f92672">=</span><span style="color:#ae81ff">43</span>
+orderStatusWeight<span style="color:#f92672">=</span><span style="color:#ae81ff">4</span>
+deliveryWeight<span style="color:#f92672">=</span><span style="color:#ae81ff">4</span>
+stockLevelWeight<span style="color:#f92672">=</span><span style="color:#ae81ff">4</span>
+// Directory name to create <span style="color:#66d9ef">for</span> collecting detailed result data.
+// Comment this out to suppress.
+resultDirectory<span style="color:#f92672">=</span>my_result_%tY-%tm-%td_%tH%tM%tS
+osCollectorScript<span style="color:#f92672">=</span>./misc/os_collector_linux.py
+osCollectorInterval<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>
+//osCollectorSSHAddr<span style="color:#f92672">=</span>user@dbhost
+//指定网卡名称以及磁盘
+osCollectorDevices<span style="color:#f92672">=</span>net_eth0 blk_sda // 通过ifconfig /sys/block/下的显示填写
+</code></pre></div><ul>
+<li>
+<p>oracle 账号创建</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#75715e">-- 创建压测账号以及表空间
+</span><span style="color:#75715e">-- oracle create test user &amp; tablespace
+</span><span style="color:#75715e"></span>sqlplus <span style="color:#f92672">/</span> <span style="color:#66d9ef">as</span> sysdba
+<span style="color:#66d9ef">SQL</span><span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">create</span> <span style="color:#66d9ef">user</span> benchmarksql identified <span style="color:#66d9ef">by</span> <span style="color:#e6db74">&#34;benchmarksql&#34;</span>;
+<span style="color:#66d9ef">SQL</span><span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">grant</span> dba,<span style="color:#66d9ef">connect</span> <span style="color:#66d9ef">to</span> benchmarksql;
+<span style="color:#66d9ef">SQL</span><span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">create</span> tablespace benchdb datafile <span style="color:#66d9ef">size</span> <span style="color:#ae81ff">30</span><span style="color:#66d9ef">G</span>;
+<span style="color:#66d9ef">SQL</span><span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">alter</span> <span style="color:#66d9ef">user</span> benchmarksql <span style="color:#66d9ef">default</span> tablespace benchdb;
+<span style="color:#66d9ef">SQL</span><span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">alter</span> tablespace benchdb <span style="color:#66d9ef">add</span> datafile <span style="color:#66d9ef">size</span> <span style="color:#ae81ff">30</span><span style="color:#66d9ef">G</span>;
+<span style="color:#75715e">-- oracle 创建表空间和用户
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">create</span> <span style="color:#66d9ef">user</span> sysbench identified <span style="color:#66d9ef">by</span> <span style="color:#e6db74">&#34;sysbench&#34;</span>;
+<span style="color:#66d9ef">grant</span> dba,<span style="color:#66d9ef">connect</span> <span style="color:#66d9ef">to</span> sysbench;
+<span style="color:#66d9ef">create</span> tablespace benchdb datafile <span style="color:#e6db74">&#39;/data/oracle/oradata/orcl11g/benchdb01.dbf&#39;</span> <span style="color:#66d9ef">size</span> <span style="color:#ae81ff">30</span><span style="color:#66d9ef">G</span>;
+<span style="color:#66d9ef">alter</span> <span style="color:#66d9ef">user</span> sysbench <span style="color:#66d9ef">default</span> tablespace benchdb;
+</code></pre></div></li>
+<li>
+<p>初始化数据&amp;压测</p>
+</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#75715e"># execute create table &amp; load data</span>
+创建表：./runSQL.sh my_props.ora ./sql.common/tableCreates.sql
+导入数据：nohup ./runLoader.sh my_props.ora &gt;./load.log 2&gt;&amp;<span style="color:#ae81ff">1</span> &amp;
+创建索引：./runSQL.sh my_props.ora ./sql.common/indexCreates.sql
+执行测试：./runBenchmark.sh my_props.ora | tee 100.out
+</code></pre></div><ul>
+<li>使用压测结果数据生成图表</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-SHELL" data-lang="SHELL"> <span style="color:#75715e">#generateGraph</span>
+  <span style="color:#75715e">### install devel rpm</span>
+  yum install texinfo-tex-4.13a-8.el6.x86_64.rpm
+  yum install libjpeg-turbo-1.2.1-3.el6_5.x86_64.rpm
+  yum install R
+  <span style="color:#75715e"># ./generateGraph</span>
+  ./generateGraphs.sh ./my_result_2020-01-17_135500
+</code></pre></div><ul>
+<li>benchmarksql压测mysql可以使用pingcap的版本在github可以搜到</li>
+<li>Enjoy it！！！</li>
+</ul>
+
+    </div>
+    <div class="post-footer">
+      
+    </div>
+  </article>
+
+    </main>
+  </body>
+</html>
