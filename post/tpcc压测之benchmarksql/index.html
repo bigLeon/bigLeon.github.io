@@ -85,7 +85,7 @@
 </li>
 </ul>
 <h3 id="使用benchmarksql压测">使用benchmarksql压测</h3>
-<p>####安装Java环境</p>
+<h4 id="安装java环境">安装Java环境</h4>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#75715e">## benchmarksql-test-oracle</span>
 <span style="color:#75715e">## 2020/1/16</span>
 <span style="color:#75715e">## install JDK1.8</span>
@@ -98,7 +98,7 @@ export JAVA_PATH<span style="color:#f92672">=</span><span style="color:#e6db74">
 export PATH<span style="color:#f92672">=</span>$PATH:<span style="color:#e6db74">${</span>JAVA_PATH<span style="color:#e6db74">}</span>
 source /etc/profile
 java -version
-</code></pre></div><p>####Benchmarksql下载安装</p>
+</code></pre></div><h4 id="benchmarksql下载安装">Benchmarksql下载安装</h4>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#75715e">#安装包下载地址</span>
 https://sourceforge.net/projects/benchmarksql/
 
@@ -115,7 +115,7 @@ export CLASSPATH<span style="color:#f92672">=</span>.:/usr/share/java/ant-launch
 
 <span style="color:#75715e"># 编译benchmarksql源码</span>
 ant -buildfile ./build.xml
-</code></pre></div><p>####配置文件设置</p>
+</code></pre></div><h4 id="配置文件设置">配置文件设置</h4>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#75715e"># 配置benchmarksql压测配置文件</span>
 <span style="color:#75715e"># configure props.ora</span>
 cd run/
@@ -150,7 +150,7 @@ osCollectorInterval<span style="color:#f92672">=</span><span style="color:#ae81f
 //osCollectorSSHAddr<span style="color:#f92672">=</span>user@dbhost
 //指定网卡名称以及磁盘
 osCollectorDevices<span style="color:#f92672">=</span>net_eth0 blk_sda // 通过ifconfig /sys/block/下的显示填写
-</code></pre></div><p>####oracle 账号创建</p>
+</code></pre></div><h4 id="oracle-账号创建">oracle 账号创建</h4>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#75715e">-- 创建压测账号以及表空间
 </span><span style="color:#75715e">-- oracle create test user &amp; tablespace
 </span><span style="color:#75715e"></span>sqlplus <span style="color:#f92672">/</span> <span style="color:#66d9ef">as</span> sysdba
@@ -164,13 +164,13 @@ osCollectorDevices<span style="color:#f92672">=</span>net_eth0 blk_sda // 通过
 <span style="color:#66d9ef">grant</span> dba,<span style="color:#66d9ef">connect</span> <span style="color:#66d9ef">to</span> sysbench;
 <span style="color:#66d9ef">create</span> tablespace benchdb datafile <span style="color:#e6db74">&#39;/data/oracle/oradata/orcl11g/benchdb01.dbf&#39;</span> <span style="color:#66d9ef">size</span> <span style="color:#ae81ff">30</span><span style="color:#66d9ef">G</span>;
 <span style="color:#66d9ef">alter</span> <span style="color:#66d9ef">user</span> sysbench <span style="color:#66d9ef">default</span> tablespace benchdb;
-</code></pre></div><p>####初始化数据&amp;压测</p>
+</code></pre></div><h4 id="初始化数据压测">初始化数据&amp;压测</h4>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#75715e"># execute create table &amp; load data</span>
 创建表：./runSQL.sh my_props.ora ./sql.common/tableCreates.sql
 导入数据：nohup ./runLoader.sh my_props.ora &gt;./load.log 2&gt;&amp;<span style="color:#ae81ff">1</span> &amp;
 创建索引：./runSQL.sh my_props.ora ./sql.common/indexCreates.sql
 执行测试：./runBenchmark.sh my_props.ora | tee 100.out
-</code></pre></div><p>####使用压测结果数据生成图表</p>
+</code></pre></div><h4 id="使用压测结果数据生成图表">使用压测结果数据生成图表</h4>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-SHELL" data-lang="SHELL"> <span style="color:#75715e">#generateGraph</span>
   <span style="color:#75715e">### install devel rpm</span>
   yum install texinfo-tex-4.13a-8.el6.x86_64.rpm
@@ -178,8 +178,8 @@ osCollectorDevices<span style="color:#f92672">=</span>net_eth0 blk_sda // 通过
   yum install R
   <span style="color:#75715e"># ./generateGraph</span>
   ./generateGraphs.sh ./my_result_2020-01-17_135500
-</code></pre></div><p>####benchmarksql压测mysql可以使用pingcap的版本在github可以搜到</p>
-<p>####Enjoy it！！！</p>
+</code></pre></div><h4 id="benchmarksql压测mysql可以使用pingcap的版本在github可以搜到">benchmarksql压测mysql可以使用pingcap的版本在github可以搜到</h4>
+<h4 id="enjoy-it">Enjoy it！！！</h4>
 
     </div>
     <div class="post-footer">

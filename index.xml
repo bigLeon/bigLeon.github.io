@@ -19,8 +19,7 @@
       <description>TPCC压测之BenchmarkSQL  Transaction Processing Performance Council (TPC) 事务处理性能委员会，是一家非盈利IT组织，他们的目的是定义数据库基准并且向产业界推广可验证的性能数据库测试。TPC-C在过去20年不管是在业界还是学术界都是应用最为广泛的OLTP压测工具。他由频繁更新和低频的索引扫描短事务组成。本文主要讲解使用benchmarksql对oracle进行tpcc压测。
  TPCC原理   TPC-C压测作为一项基准测试，它并不能完整的展现生产上业务的多样性的操作的，而是保留此类活动的基本特征：如系统利用率和操作复杂程度，它的各种操作是成比例的。整个基准测试描述的是一家批发供应商，其分布的多个销售区和相关仓库。 随着公司业务的扩展，需要创建新的仓库和相关销售区。 每个区域仓库覆盖10个销售地区。 每个地区为3,000位客户提供服务。 所有仓库保留公司出售的100,000件商品的库存。 下图说明了TPC-C业务环境的仓库，区域和客户层次结构。
   tpcc模型是批发供应商oltp场景，包含客户创建订单，派送订单，支付。tpcc的库由9张表组成，一张是固定大小不变的，其中四张表和仓库数量大小而按比增加或者减小，另外四张表会由于运行表的记录数会不断地增长。压测包含五种交易类型及其比例：
- neworder 45% 属于中量级事务会有1%失败率由于无效输入 payment 43% 属于短事务，为已存在的订单做支付动作 orderstatus 4% 属于只读事务用于计算运输装状态和订单line item Delivery 4% 是最大和最具争议的更新事务。会查询每个仓库中没有交付的订单更新为交付状态 stocklevel 4% 属于只读事务，加入平均200 order line 及相应的库存用以生成报告    使用benchmarksql压测 ####安装Java环境
-## benchmarksql-test-oracle ## 2020/1/16 ## install JDK1.8 tar -zxvf jdk-8u181-linux-x64.tar.gz -C /usr/local vi /etc/profile export JAVA_HOME=/usr/local/jdk1.8.0_181 export JRE_HOME=${JAVA_HOME}/jre export CLASSPATH=.:${JAVA_HOME}/lib:${JRE_HOME}/lib:$CLASSPATH export JAVA_PATH=${JAVA_HOME}/bin:${JRE_HOME}/bin export PATH=$PATH:${JAVA_PATH} source /etc/profile java -version ####Benchmarksql下载安装</description>
+ neworder 45% 属于中量级事务会有1%失败率由于无效输入 payment 43% 属于短事务，为已存在的订单做支付动作 orderstatus 4% 属于只读事务用于计算运输装状态和订单line item Delivery 4% 是最大和最具争议的更新事务。会查询每个仓库中没有交付的订单更新为交付状态 stocklevel 4% 属于只读事务，加入平均200 order line 及相应的库存用以生成报告    使用benchmarksql压测 安装Java环境 ## benchmarksql-test-oracle ## 2020/1/16 ## install JDK1.8 tar -zxvf jdk-8u181-linux-x64.tar.gz -C /usr/local vi /etc/profile export JAVA_HOME=/usr/local/jdk1.8.0_181 export JRE_HOME=${JAVA_HOME}/jre export CLASSPATH=.:${JAVA_HOME}/lib:${JRE_HOME}/lib:$CLASSPATH export JAVA_PATH=${JAVA_HOME}/bin:${JRE_HOME}/bin export PATH=$PATH:${JAVA_PATH} source /etc/profile java -version Benchmarksql下载安装 #安装包下载地址 https://sourceforge.</description>
     </item>
     
     <item>
