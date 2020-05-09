@@ -5,10 +5,42 @@
     <link>https://bigleon.github.io/post/</link>
     <description>Recent content in Posts on Leon&#39;s blog</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Thu, 07 May 2020 13:46:47 +0800</lastBuildDate>
+    <lastBuildDate>Sat, 09 May 2020 14:07:40 +0800</lastBuildDate>
     
 	<atom:link href="https://bigleon.github.io/post/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Golang语言基础之运算符【三】</title>
+      <link>https://bigleon.github.io/post/golang%E8%AF%AD%E8%A8%80%E5%9F%BA%E7%A1%80%E4%B9%8B%E8%BF%90%E7%AE%97%E7%AC%A6%E4%B8%89/</link>
+      <pubDate>Sat, 09 May 2020 14:07:40 +0800</pubDate>
+      
+      <guid>https://bigleon.github.io/post/golang%E8%AF%AD%E8%A8%80%E5%9F%BA%E7%A1%80%E4%B9%8B%E8%BF%90%E7%AE%97%E7%AC%A6%E4%B8%89/</guid>
+      <description>Go语言基础之运算符 运算符 Go 语言内置的运算符有：
+ 算术运算符 关系运算符 逻辑运算符 位运算符 赋值运算符  算数运算符    运算符 描述     + 相加   - 相减   * 相乘   / 相除   % 求余    注意： ++（自增）和--（自减）在Go语言中是单独的语句，并不是运算符。
+关系运算符    运算符 描述     == 检查两个值是否相等，如果相等返回 True 否则返回 False。   != 检查两个值是否不相等，如果不相等返回 True 否则返回 False。   &amp;gt; 检查左边值是否大于右边值，如果是返回 True 否则返回 False。   &amp;gt;= 检查左边值是否大于等于右边值，如果是返回 True 否则返回 False。   &amp;lt; 检查左边值是否小于右边值，如果是返回 True 否则返回 False。   &amp;lt;= 检查左边值是否小于等于右边值，如果是返回 True 否则返回 False。    逻辑运算符    运算符 描述     &amp;amp;&amp;amp; 逻辑 AND 运算符。 如果两边的操作数都是 True，则为 True，否则为 False。   || 逻辑 OR 运算符。 如果两边的操作数有一个 True，则为 True，否则为 False。   !</description>
+    </item>
+    
+    <item>
+      <title>Golang语言基础之数据类型【二】</title>
+      <link>https://bigleon.github.io/post/golang%E8%AF%AD%E8%A8%80%E5%9F%BA%E7%A1%80%E4%B9%8B%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E4%BA%8C/</link>
+      <pubDate>Sat, 09 May 2020 14:07:28 +0800</pubDate>
+      
+      <guid>https://bigleon.github.io/post/golang%E8%AF%AD%E8%A8%80%E5%9F%BA%E7%A1%80%E4%B9%8B%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E4%BA%8C/</guid>
+      <description>Go语言基础之数据类型【二】 Go语言中有丰富的数据类型，除了基本的整型、浮点型、布尔型、字符串外，还有数组、切片、结构体、函数、map、通道（channel）等。
+ 基本数据类型 整型 型分为以下两个大类： 按长度分为：int8、int16、int32、int64 对应的无符号整型：uint8、uint16、uint32、uint64。其中，uint8就是我们熟知的byte型，int16对应C语言中的short型，int64对应C语言中的long型。
+   类型 长度（字节） 描述     uint8（即byte） 1 无符号 8位整型 (0 到 255)   uint16 2 无符号 16位整型 (0 到 65535)   uint32 4 无符号 32位整型 (0 到 4294967295)   uint64 8 无符号 64位整型 (0 到 18446744073709551615)   int8 1 有符号 8位整型 (-128 到 127)   int16 2 有符号 16位整型 (-32768 到 32767)   int32 4 有符号 32位整型 (-2147483648 到 2147483647)   int64 8 有符号 64位整型 (-9223372036854775808 到 9223372036854775807)    特殊整型    类型 长度（字节） 描述     uint 和平台有关 32位操作系统上就是uint32，64位操作系统上就是uint64   int 和平台有关 32位操作系统上就是int32，64位操作系统上就是int64   uintptr 23bit:4字节，64bit：8字节 无符号整型，用于存放一个指针    注意： 在使用int和 uint类型时，不能假定它是32位或64位的整型，而是考虑int和uint可能在不同平台上的差异。</description>
+    </item>
+    
+    <item>
+      <title>Golang语言基础之常量和变量【一】</title>
+      <link>https://bigleon.github.io/post/golang%E8%AF%AD%E8%A8%80%E5%9F%BA%E7%A1%80%E4%B9%8B%E5%B8%B8%E9%87%8F%E5%92%8C%E5%8F%98%E9%87%8F%E4%B8%80/</link>
+      <pubDate>Sat, 09 May 2020 14:07:14 +0800</pubDate>
+      
+      <guid>https://bigleon.github.io/post/golang%E8%AF%AD%E8%A8%80%E5%9F%BA%E7%A1%80%E4%B9%8B%E5%B8%B8%E9%87%8F%E5%92%8C%E5%8F%98%E9%87%8F%E4%B8%80/</guid>
+      <description>Golang语言基础之常量和变量【一】 标识符  比如变量名、常量名、函数名等命名和其他语言一样必须要字母或者_开头命名，举几个例子：abc, _, _123, a123。   关键字 #####Go中25个关键字
+break default func interface select case defer go map struct chan else goto package switch const fallthrough if range type continue for import return var Go还有37个保留字 Constants: true false iota nil Types: int int8 int16 int32 int64 uint uint8 uint16 uint32 uint64 uintptr float32 float64 complex128 complex64 bool byte rune string error Functions: make len cap new append copy close delete complex real imag panic recover 常量声明 常量定义 使用关键字const定义，常量是恒定不变的值，多用于定义程序运行期间不会改变的那些值。</description>
+    </item>
     
     <item>
       <title>TPCC压测之BenchmarkSQL</title>

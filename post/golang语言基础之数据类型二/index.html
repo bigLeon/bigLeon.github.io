@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <title>Golang语言基础之数据类型【二】 // Leon&#39;s blog</title>
+    <meta charset="utf-8" />
+    <meta name="generator" content="Hugo 0.69.2" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="author" content="Leon Tian" />
+    <meta name="description" content="" />
+    <link rel="stylesheet" href="https://bigleon.github.io/css/main.min.61bb32028587f24ca28522d8d197970c7ef33284e5fffb45a75fcbbb2dbc4dcb.css" />
+
+    
+    <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Golang语言基础之数据类型【二】"/>
+<meta name="twitter:description" content="Go语言基础之数据类型【二】 Go语言中有丰富的数据类型，除了基本的整型、浮点型、布尔型、字符串外，还有数组、切片、结构体、函数、map、通道（channel）等。
+ 基本数据类型 整型 型分为以下两个大类： 按长度分为：int8、int16、int32、int64 对应的无符号整型：uint8、uint16、uint32、uint64。其中，uint8就是我们熟知的byte型，int16对应C语言中的short型，int64对应C语言中的long型。
+   类型 长度（字节） 描述     uint8（即byte） 1 无符号 8位整型 (0 到 255)   uint16 2 无符号 16位整型 (0 到 65535)   uint32 4 无符号 32位整型 (0 到 4294967295)   uint64 8 无符号 64位整型 (0 到 18446744073709551615)   int8 1 有符号 8位整型 (-128 到 127)   int16 2 有符号 16位整型 (-32768 到 32767)   int32 4 有符号 32位整型 (-2147483648 到 2147483647)   int64 8 有符号 64位整型 (-9223372036854775808 到 9223372036854775807)    特殊整型    类型 长度（字节） 描述     uint 和平台有关 32位操作系统上就是uint32，64位操作系统上就是uint64   int 和平台有关 32位操作系统上就是int32，64位操作系统上就是int64   uintptr 23bit:4字节，64bit：8字节 无符号整型，用于存放一个指针    注意： 在使用int和 uint类型时，不能假定它是32位或64位的整型，而是考虑int和uint可能在不同平台上的差异。"/>
+
+    <meta property="og:title" content="Golang语言基础之数据类型【二】" />
+<meta property="og:description" content="Go语言基础之数据类型【二】 Go语言中有丰富的数据类型，除了基本的整型、浮点型、布尔型、字符串外，还有数组、切片、结构体、函数、map、通道（channel）等。
+ 基本数据类型 整型 型分为以下两个大类： 按长度分为：int8、int16、int32、int64 对应的无符号整型：uint8、uint16、uint32、uint64。其中，uint8就是我们熟知的byte型，int16对应C语言中的short型，int64对应C语言中的long型。
+   类型 长度（字节） 描述     uint8（即byte） 1 无符号 8位整型 (0 到 255)   uint16 2 无符号 16位整型 (0 到 65535)   uint32 4 无符号 32位整型 (0 到 4294967295)   uint64 8 无符号 64位整型 (0 到 18446744073709551615)   int8 1 有符号 8位整型 (-128 到 127)   int16 2 有符号 16位整型 (-32768 到 32767)   int32 4 有符号 32位整型 (-2147483648 到 2147483647)   int64 8 有符号 64位整型 (-9223372036854775808 到 9223372036854775807)    特殊整型    类型 长度（字节） 描述     uint 和平台有关 32位操作系统上就是uint32，64位操作系统上就是uint64   int 和平台有关 32位操作系统上就是int32，64位操作系统上就是int64   uintptr 23bit:4字节，64bit：8字节 无符号整型，用于存放一个指针    注意： 在使用int和 uint类型时，不能假定它是32位或64位的整型，而是考虑int和uint可能在不同平台上的差异。" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://bigleon.github.io/post/golang%E8%AF%AD%E8%A8%80%E5%9F%BA%E7%A1%80%E4%B9%8B%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E4%BA%8C/" />
+<meta property="article:published_time" content="2020-05-09T14:07:28+08:00" />
+<meta property="article:modified_time" content="2020-05-09T14:07:28+08:00" />
+
+
+  </head>
+  <body>
+    <header class="app-header">
+      <a href="https://bigleon.github.io/"><img class="app-header-avatar" src="/avatar.jpg" alt="Leon Tian" /></a>
+      <h1>Leon&#39;s blog</h1>
+      <p>说说数据库那些事儿</p>
+      <div class="app-header-social">
+        
+          <a target="_blank" href="https://github.com/gohugoio" rel="noreferrer noopener"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-github">
+  <title>github</title>
+  <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+</svg></a>
+        
+      </div>
+    </header>
+    <main class="app-container">
+      
+  <article class="post">
+    <header class="post-header">
+      <h1 class ="post-title">Golang语言基础之数据类型【二】</h1>
+      <div class="post-meta">
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-calendar">
+  <title>calendar</title>
+  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line>
+</svg>
+          May 9, 2020
+        </div>
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-clock">
+  <title>clock</title>
+  <circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>
+</svg>
+          3 min read
+        </div><div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tag">
+  <title>tag</title>
+  <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7" y2="7"></line>
+</svg>
+          <a class="tag" href="https://bigleon.github.io/tags/golang/">Golang</a></div></div>
+    </header>
+    <div class="post-content">
+      <h2 id="go语言基础之数据类型二">Go语言基础之数据类型【二】</h2>
+<p>Go语言中有丰富的数据类型，除了基本的整型、浮点型、布尔型、字符串外，还有数组、切片、结构体、函数、map、通道（channel）等。</p>
+<hr>
+<h3 id="基本数据类型">基本数据类型</h3>
+<h4 id="整型">整型</h4>
+<p>型分为以下两个大类： 按长度分为：int8、int16、int32、int64 对应的无符号整型：uint8、uint16、uint32、uint64。其中，<code>uint8</code>就是我们熟知的<code>byte</code>型，<code>int16</code>对应C语言中的<code>short</code>型，<code>int64</code>对应C语言中的<code>long</code>型。</p>
+<table>
+<thead>
+<tr>
+<th align="center">类型</th>
+<th>长度（字节）</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">uint8（即byte）</td>
+<td>1</td>
+<td align="left">无符号 8位整型 (0 到 255)</td>
+</tr>
+<tr>
+<td align="center">uint16</td>
+<td>2</td>
+<td align="left">无符号 16位整型 (0 到 65535)</td>
+</tr>
+<tr>
+<td align="center">uint32</td>
+<td>4</td>
+<td align="left">无符号 32位整型 (0 到 4294967295)</td>
+</tr>
+<tr>
+<td align="center">uint64</td>
+<td>8</td>
+<td align="left">无符号 64位整型 (0 到 18446744073709551615)</td>
+</tr>
+<tr>
+<td align="center">int8</td>
+<td>1</td>
+<td align="left">有符号 8位整型 (-128 到 127)</td>
+</tr>
+<tr>
+<td align="center">int16</td>
+<td>2</td>
+<td align="left">有符号 16位整型 (-32768 到 32767)</td>
+</tr>
+<tr>
+<td align="center">int32</td>
+<td>4</td>
+<td align="left">有符号 32位整型 (-2147483648 到 2147483647)</td>
+</tr>
+<tr>
+<td align="center">int64</td>
+<td>8</td>
+<td align="left">有符号 64位整型 (-9223372036854775808 到 9223372036854775807)</td>
+</tr>
+</tbody>
+</table>
+<h4 id="特殊整型">特殊整型</h4>
+<table>
+<thead>
+<tr>
+<th align="center">类型</th>
+<th>长度（字节）</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">uint</td>
+<td>和平台有关</td>
+<td align="left">32位操作系统上就是<code>uint32</code>，64位操作系统上就是<code>uint64</code></td>
+</tr>
+<tr>
+<td align="center">int</td>
+<td>和平台有关</td>
+<td align="left">32位操作系统上就是<code>int32</code>，64位操作系统上就是<code>int64</code></td>
+</tr>
+<tr>
+<td align="center">uintptr</td>
+<td>23bit:4字节，64bit：8字节</td>
+<td align="left">无符号整型，用于存放一个指针</td>
+</tr>
+</tbody>
+</table>
+<p><strong>注意：</strong> 在使用<code>int</code>和 <code>uint</code>类型时，不能假定它是32位或64位的整型，而是考虑<code>int</code>和<code>uint</code>可能在不同平台上的差异。</p>
+<p><strong>注意事项</strong> 获取对象的长度的内建<code>len()</code>函数返回的长度可以根据不同平台的字节长度进行变化。实际使用中，切片或 map 的元素数量等都可以用<code>int</code>来表示。在涉及到二进制传输、读写文件的结构描述时，为了保持文件的结构不会受到不同编译目标平台字节长度的影响，不要使用<code>int</code>和 <code>uint</code>。</p>
+<h4 id="数字字面量语法number-literals-syntax">数字字面量语法（Number literals syntax）</h4>
+<p>Go1.13版本之后引入了数字字面量语法，这样便于开发者以二进制、八进制或十六进制浮点数的格式定义数字，例如：</p>
+<p>v := 0b00101101， 代表二进制的 101101，相当于十进制的 45。 v := 0o377，代表八进制的 377，相当于十进制的 255。 v := 0x1p-2，代表十六进制的 1 除以 2²，也就是 0.25。 而且还允许我们用 _ 来分隔数字，比如说：</p>
+<p>v := 123_456 等于 123456。</p>
+<p>我们可以借助fmt函数来将一个整数以不同进制形式展示。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+ 
+<span style="color:#f92672">import</span> <span style="color:#e6db74">&#34;fmt&#34;</span>
+ 
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>(){
+	<span style="color:#75715e">// 十进制
+</span><span style="color:#75715e"></span>	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">a</span> <span style="color:#66d9ef">int</span> = <span style="color:#ae81ff">10</span>
+	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;%d \n&#34;</span>, <span style="color:#a6e22e">a</span>)  <span style="color:#75715e">// 10
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;%b \n&#34;</span>, <span style="color:#a6e22e">a</span>)  <span style="color:#75715e">// 1010  占位符%b表示二进制
+</span><span style="color:#75715e"></span> 
+	<span style="color:#75715e">// 八进制  以0开头
+</span><span style="color:#75715e"></span>	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">b</span> <span style="color:#66d9ef">int</span> = <span style="color:#ae81ff">077</span>
+	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;%o \n&#34;</span>, <span style="color:#a6e22e">b</span>)  <span style="color:#75715e">// 77
+</span><span style="color:#75715e"></span> 
+	<span style="color:#75715e">// 十六进制  以0x开头
+</span><span style="color:#75715e"></span>	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">c</span> <span style="color:#66d9ef">int</span> = <span style="color:#ae81ff">0xff</span>
+	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;%x \n&#34;</span>, <span style="color:#a6e22e">c</span>)  <span style="color:#75715e">// ff
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;%X \n&#34;</span>, <span style="color:#a6e22e">c</span>)  <span style="color:#75715e">// FF
+</span><span style="color:#75715e"></span>}
+</code></pre></div><h4 id="浮点型">浮点型</h4>
+<p>Go语言支持两种浮点型数：<code>float32</code>和<code>float64</code>。这两种浮点型数据格式遵循<code>IEEE 754</code>标准： <code>float32</code> 的浮点数的最大范围约为 <code>3.4e38</code>，可以使用常量定义：<code>math.MaxFloat32</code>。 <code>float64</code> 的浮点数的最大范围约为 <code>1.8e308</code>，可以使用一个常量定义：<code>math.MaxFloat64</code>。</p>
+<p>打印浮点数时，可以使用<code>fmt</code>包配合动词<code>%f</code>，代码如下：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+<span style="color:#f92672">import</span> (
+        <span style="color:#e6db74">&#34;fmt&#34;</span>
+        <span style="color:#e6db74">&#34;math&#34;</span>
+)
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+        <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;%f\n&#34;</span>, <span style="color:#a6e22e">math</span>.<span style="color:#a6e22e">Pi</span>)
+        <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;%.2f\n&#34;</span>, <span style="color:#a6e22e">math</span>.<span style="color:#a6e22e">Pi</span>) <span style="color:#75715e">//保留小数点两位
+</span><span style="color:#75715e"></span>}
+</code></pre></div><h4 id="复数">复数</h4>
+<p>complex64和complex128</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">c1</span> <span style="color:#66d9ef">complex64</span>
+<span style="color:#a6e22e">c1</span> = <span style="color:#ae81ff">1</span> <span style="color:#f92672">+</span> <span style="color:#ae81ff">2i</span>
+<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">c2</span> <span style="color:#66d9ef">complex128</span>
+<span style="color:#a6e22e">c2</span> = <span style="color:#ae81ff">2</span> <span style="color:#f92672">+</span> <span style="color:#ae81ff">3i</span>
+<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">c1</span>)
+<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">c2</span>)
+</code></pre></div><p>复数有实部和虚部，complex64的实部和虚部为32位，complex128的实部和虚部为64位。</p>
+<h4 id="布尔值">布尔值</h4>
+<p>Go语言中以<code>bool</code>类型进行声明布尔型数据，布尔型数据只有<code>true（真）</code>和<code>false（假）</code>两个值。</p>
+<p><strong>注意：</strong></p>
+<ol>
+<li>布尔类型变量的默认值为<code>false</code>。</li>
+<li>Go 语言中不允许将整型强制转换为布尔型.</li>
+<li>布尔型无法参与数值运算，也无法与其他类型进行转换。</li>
+</ol>
+<h4 id="字符串">字符串</h4>
+<p>Go语言中的字符串以原生数据类型出现，使用字符串就像使用其他原生数据类型（int、bool、float32、float64 等）一样。 Go 语言里的字符串的内部实现使用<code>UTF-8</code>编码。 字符串的值为<code>双引号(&quot;)</code>中的内容，可以在Go语言的源码中直接添加非ASCII码字符，单引号<code>''</code>代表字符。例如：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a6e22e">s1</span> <span style="color:#f92672">:=</span> <span style="color:#e6db74">&#34;hello&#34;</span>
+<span style="color:#a6e22e">s2</span> <span style="color:#f92672">:=</span> <span style="color:#e6db74">&#34;你好&#34;</span>
+</code></pre></div><h4 id="字符串转移符">字符串转移符</h4>
+<p>Go 语言的字符串常见转义符包含回车、换行、单双引号、制表符等，如下表所示。</p>
+<table>
+<thead>
+<tr>
+<th align="center">转义符</th>
+<th align="left">含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><code>\r</code></td>
+<td align="left">回车符（返回行首）</td>
+</tr>
+<tr>
+<td align="center"><code>\n</code></td>
+<td align="left">换行符（直接跳到下一行的同列位置）</td>
+</tr>
+<tr>
+<td align="center"><code>\t</code></td>
+<td align="left">制表符</td>
+</tr>
+<tr>
+<td align="center"><code>\'</code></td>
+<td align="left">单引号</td>
+</tr>
+<tr>
+<td align="center"><code>\&quot;</code></td>
+<td align="left">双引号</td>
+</tr>
+<tr>
+<td align="center"><code>\\</code></td>
+<td align="left">反斜杠</td>
+</tr>
+</tbody>
+</table>
+<p>举个例子，我们要打印一个Windows平台下的一个文件路径：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+<span style="color:#f92672">import</span> (
+    <span style="color:#e6db74">&#34;fmt&#34;</span>
+)
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;str := \&#34;c:\\Code\\lesson1\\go.exe\&#34;&#34;</span>)
+}
+</code></pre></div><h4 id="多行字符串">多行字符串</h4>
+<p>Go语言中要定义一个多行字符串时，就必须使用反引号<code>(``)</code>字符：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a6e22e">s1</span> <span style="color:#f92672">:=</span> <span style="color:#960050;background-color:#1e0010">`</span><span style="color:#a6e22e">第一行</span>
+<span style="color:#a6e22e">第二行</span>
+<span style="color:#a6e22e">第三行</span>
+<span style="color:#a6e22e">s</span>
+<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">s1</span>)
+</code></pre></div><p>反引号间换行将被作为字符串中的换行，但是所有的转义字符均无效，文本将会原样输出。</p>
+<h4 id="字符串的常用操作">字符串的常用操作</h4>
+<table>
+<thead>
+<tr>
+<th align="left">方法</th>
+<th align="left">介绍</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">len(str)</td>
+<td align="left">求长度</td>
+</tr>
+<tr>
+<td align="left">+或fmt.Sprintf</td>
+<td align="left">拼接字符串</td>
+</tr>
+<tr>
+<td align="left">strings.Split</td>
+<td align="left">分割</td>
+</tr>
+<tr>
+<td align="left">strings.contains</td>
+<td align="left">判断是否包含</td>
+</tr>
+<tr>
+<td align="left">strings.HasPrefix,strings.HasSuffix</td>
+<td align="left">前缀/后缀判断</td>
+</tr>
+<tr>
+<td align="left">strings.Index(),strings.LastIndex()</td>
+<td align="left">子串出现的位置</td>
+</tr>
+<tr>
+<td align="left">strings.Join(a[]string, sep string)</td>
+<td align="left">join操作</td>
+</tr>
+</tbody>
+</table>
+<h5 id="byte和rune类型">byte和rune类型</h5>
+<p>组成每个字符串的元素叫做“字符”，可以通过遍历或者单个获取字符串元素获得字符。 字符用单引号（’）包裹起来，如：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">a</span> <span style="color:#f92672">:=</span> <span style="color:#e6db74">&#39;中&#39;</span>
+<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">b</span> <span style="color:#f92672">:=</span> <span style="color:#e6db74">&#39;x&#39;</span>
+</code></pre></div><p>Go 语言的字符有以下两种：</p>
+<ol>
+<li><code>uint8</code>类型，或者叫 byte 型，代表了<code>ASCII码</code>的一个字符。</li>
+<li><code>rune</code>类型，代表一个 <code>UTF-8字符</code>。</li>
+</ol>
+<p>当需要处理中文、日文或者其他复合字符时，则需要用到<code>rune</code>类型。<code>rune</code>类型实际是一个<code>int32</code>。</p>
+<p>Go 使用了特殊的 rune 类型来处理 Unicode，让基于 Unicode 的文本处理更为方便，也可以使用 byte 型进行默认字符串处理，性能和扩展性都有照顾。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#75715e">// 遍历字符串
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">traversalString</span>() {
+	<span style="color:#a6e22e">s</span> <span style="color:#f92672">:=</span> <span style="color:#e6db74">&#34;hello侬好&#34;</span>
+	<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">i</span> &lt; len(<span style="color:#a6e22e">s</span>); <span style="color:#a6e22e">i</span><span style="color:#f92672">++</span> { <span style="color:#75715e">//byte
+</span><span style="color:#75715e"></span>		<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;%v(%c) &#34;</span>, <span style="color:#a6e22e">s</span>[<span style="color:#a6e22e">i</span>], <span style="color:#a6e22e">s</span>[<span style="color:#a6e22e">i</span>])
+	}
+	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>()
+	<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">_</span>, <span style="color:#a6e22e">r</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">range</span> <span style="color:#a6e22e">s</span> { <span style="color:#75715e">//rune
+</span><span style="color:#75715e"></span>		<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;%v(%c) &#34;</span>, <span style="color:#a6e22e">r</span>, <span style="color:#a6e22e">r</span>)
+	}
+	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>()
+}
+</code></pre></div><p>输出：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">104<span style="color:#f92672">(</span>h<span style="color:#f92672">)</span> 101<span style="color:#f92672">(</span>e<span style="color:#f92672">)</span> 108<span style="color:#f92672">(</span>l<span style="color:#f92672">)</span> 108<span style="color:#f92672">(</span>l<span style="color:#f92672">)</span> 111<span style="color:#f92672">(</span>o<span style="color:#f92672">)</span> 228<span style="color:#f92672">(</span>ä<span style="color:#f92672">)</span> 190<span style="color:#f92672">(</span>¾<span style="color:#f92672">)</span> 172<span style="color:#f92672">(</span>¬<span style="color:#f92672">)</span> 229<span style="color:#f92672">(</span>å<span style="color:#f92672">)</span> 165<span style="color:#f92672">(</span>¥<span style="color:#f92672">)</span> 189<span style="color:#f92672">(</span>½<span style="color:#f92672">)</span> 
+104<span style="color:#f92672">(</span>h<span style="color:#f92672">)</span> 101<span style="color:#f92672">(</span>e<span style="color:#f92672">)</span> 108<span style="color:#f92672">(</span>l<span style="color:#f92672">)</span> 108<span style="color:#f92672">(</span>l<span style="color:#f92672">)</span> 111<span style="color:#f92672">(</span>o<span style="color:#f92672">)</span> 20396<span style="color:#f92672">(</span>侬<span style="color:#f92672">)</span> 22909<span style="color:#f92672">(</span>好<span style="color:#f92672">)</span> 
+</code></pre></div><p>因为UTF8编码下一个中文汉字由3~4个字节组成，所以我们不能简单的按照字节去遍历一个包含中文的字符串，否则就会出现上面输出中第一行的结果。</p>
+<p>字符串底层是一个byte数组，所以可以和<code>[]byte</code>类型相互转换。字符串是不能修改的 字符串是由byte字节组成，所以字符串的长度是byte字节的长度。 rune类型用来表示utf8字符，一个rune字符由一个或多个byte组成。</p>
+<h4 id="修改字符串">修改字符串</h4>
+<p>要修改字符串，需要先将其转换成<code>[]rune</code>或<code>[]byte</code>，完成后再转换为<code>string</code>。无论哪种转换，都会重新分配内存，并复制字节数组。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">changeString</span>() {
+	<span style="color:#a6e22e">s1</span> <span style="color:#f92672">:=</span> <span style="color:#e6db74">&#34;big&#34;</span>
+	<span style="color:#75715e">// 强制类型转换
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">byteS1</span> <span style="color:#f92672">:=</span> []byte(<span style="color:#a6e22e">s1</span>)
+	<span style="color:#a6e22e">byteS1</span>[<span style="color:#ae81ff">0</span>] = <span style="color:#e6db74">&#39;p&#39;</span>
+	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(string(<span style="color:#a6e22e">byteS1</span>))
+
+	<span style="color:#a6e22e">s2</span> <span style="color:#f92672">:=</span> <span style="color:#e6db74">&#34;白萝卜&#34;</span>
+	<span style="color:#a6e22e">runeS2</span> <span style="color:#f92672">:=</span> []rune(<span style="color:#a6e22e">s2</span>)
+	<span style="color:#a6e22e">runeS2</span>[<span style="color:#ae81ff">0</span>] = <span style="color:#e6db74">&#39;红&#39;</span>
+	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(string(<span style="color:#a6e22e">runeS2</span>))
+}
+</code></pre></div><h4 id="类型转换">类型转换</h4>
+<p>Go语言中只有强制类型转换，没有隐式类型转换。该语法只能在两个类型之间支持相互转换的时候使用。</p>
+<p>强制类型转换的基本语法如下：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">T<span style="color:#f92672">(</span>表达式<span style="color:#f92672">)</span>
+</code></pre></div><p>其中，T表示要转换的类型。表达式包括变量、复杂算子和函数返回值等.</p>
+<p>比如计算直角三角形的斜边长时使用math包的Sqrt()函数，该函数接收的是float64类型的参数，而变量a和b都是int类型的，这个时候就需要将a和b强制类型转换为float64类型。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">sqrtDemo</span>() {
+	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">a</span>, <span style="color:#a6e22e">b</span> = <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">4</span>
+	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">c</span> <span style="color:#66d9ef">int</span>
+	<span style="color:#75715e">// math.Sqrt()接收的参数是float64类型，需要强制转换
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">c</span> = int(<span style="color:#a6e22e">math</span>.<span style="color:#a6e22e">Sqrt</span>(float64(<span style="color:#a6e22e">a</span><span style="color:#f92672">*</span><span style="color:#a6e22e">a</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">b</span><span style="color:#f92672">*</span><span style="color:#a6e22e">b</span>)))
+	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">c</span>)
+}
+</code></pre></div>
+    </div>
+    <div class="post-footer">
+      
+    </div>
+  </article>
+
+    </main>
+  </body>
+</html>

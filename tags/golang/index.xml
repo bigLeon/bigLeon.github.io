@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Leon&#39;s blog</title>
-    <link>https://bigleon.github.io/</link>
-    <description>Recent content on Leon&#39;s blog</description>
+    <title>Golang on Leon&#39;s blog</title>
+    <link>https://bigleon.github.io/tags/golang/</link>
+    <description>Recent content in Golang on Leon&#39;s blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <lastBuildDate>Sat, 09 May 2020 14:07:40 +0800</lastBuildDate>
     
-	<atom:link href="https://bigleon.github.io/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://bigleon.github.io/tags/golang/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
@@ -40,33 +40,6 @@
       <guid>https://bigleon.github.io/post/golang%E8%AF%AD%E8%A8%80%E5%9F%BA%E7%A1%80%E4%B9%8B%E5%B8%B8%E9%87%8F%E5%92%8C%E5%8F%98%E9%87%8F%E4%B8%80/</guid>
       <description>Golang语言基础之常量和变量【一】 标识符  比如变量名、常量名、函数名等命名和其他语言一样必须要字母或者_开头命名，举几个例子：abc, _, _123, a123。   关键字 #####Go中25个关键字
 break default func interface select case defer go map struct chan else goto package switch const fallthrough if range type continue for import return var Go还有37个保留字 Constants: true false iota nil Types: int int8 int16 int32 int64 uint uint8 uint16 uint32 uint64 uintptr float32 float64 complex128 complex64 bool byte rune string error Functions: make len cap new append copy close delete complex real imag panic recover 常量声明 常量定义 使用关键字const定义，常量是恒定不变的值，多用于定义程序运行期间不会改变的那些值。</description>
-    </item>
-    
-    <item>
-      <title>TPCC压测之BenchmarkSQL</title>
-      <link>https://bigleon.github.io/post/tpcc%E5%8E%8B%E6%B5%8B%E4%B9%8Bbenchmarksql/</link>
-      <pubDate>Thu, 07 May 2020 13:46:47 +0800</pubDate>
-      
-      <guid>https://bigleon.github.io/post/tpcc%E5%8E%8B%E6%B5%8B%E4%B9%8Bbenchmarksql/</guid>
-      <description>TPCC压测之BenchmarkSQL  Transaction Processing Performance Council (TPC) 事务处理性能委员会，是一家非盈利IT组织，他们的目的是定义数据库基准并且向产业界推广可验证的性能数据库测试。TPC-C在过去20年不管是在业界还是学术界都是应用最为广泛的OLTP压测工具。他由频繁更新和低频的索引扫描短事务组成。本文主要讲解使用benchmarksql对oracle进行tpcc压测。
- TPCC原理   TPC-C压测作为一项基准测试，它并不能完整的展现生产上业务的多样性的操作的，而是保留此类活动的基本特征：如系统利用率和操作复杂程度，它的各种操作是成比例的。整个基准测试描述的是一家批发供应商，其分布的多个销售区和相关仓库。 随着公司业务的扩展，需要创建新的仓库和相关销售区。 每个区域仓库覆盖10个销售地区。 每个地区为3,000位客户提供服务。 所有仓库保留公司出售的100,000件商品的库存。 下图说明了TPC-C业务环境的仓库，区域和客户层次结构。
-  tpcc模型是批发供应商oltp场景，包含客户创建订单，派送订单，支付。tpcc的库由9张表组成，一张是固定大小不变的，其中四张表和仓库数量大小而按比增加或者减小，另外四张表会由于运行表的记录数会不断地增长。压测包含五种交易类型及其比例：
- neworder 45% 属于中量级事务会有1%失败率由于无效输入 payment 43% 属于短事务，为已存在的订单做支付动作 orderstatus 4% 属于只读事务用于计算运输装状态和订单line item Delivery 4% 是最大和最具争议的更新事务。会查询每个仓库中没有交付的订单更新为交付状态 stocklevel 4% 属于只读事务，加入平均200 order line 及相应的库存用以生成报告    使用benchmarksql压测 安装Java环境 ## benchmarksql-test-oracle ## 2020/1/16 ## install JDK1.8 tar -zxvf jdk-8u181-linux-x64.tar.gz -C /usr/local vi /etc/profile export JAVA_HOME=/usr/local/jdk1.8.0_181 export JRE_HOME=${JAVA_HOME}/jre export CLASSPATH=.:${JAVA_HOME}/lib:${JRE_HOME}/lib:$CLASSPATH export JAVA_PATH=${JAVA_HOME}/bin:${JRE_HOME}/bin export PATH=$PATH:${JAVA_PATH} source /etc/profile java -version Benchmarksql下载安装 #安装包下载地址 https://sourceforge.</description>
-    </item>
-    
-    <item>
-      <title>MySQL 8.0 新特性解读</title>
-      <link>https://bigleon.github.io/post/mysql8.0%E6%96%B0%E7%89%B9%E6%80%A7%E8%A7%A3%E8%AF%BB/</link>
-      <pubDate>Sun, 03 May 2020 20:49:43 +0800</pubDate>
-      
-      <guid>https://bigleon.github.io/post/mysql8.0%E6%96%B0%E7%89%B9%E6%80%A7%E8%A7%A3%E8%AF%BB/</guid>
-      <description>MySQL 8.0 新特性解读  MySQL 8.0 2018/4/19 General Availability以来已经发发布了9个小版本。很多公司已经开始使用8.0版本尤其是官方主要精力在8.0版本的新特性和bug修改，8.0的MGR 持续的修复bug 和引入,MGR原生强一致高可用特性对于金融行业对于数据强一致的要是极大的吸引力。 2020/1/13 MySQL 8.0.19 新版本GA了,新年第一个版本。MySQL8.0以来新增新特性将近300个，本文将对新特性进行梳理。把其中重大特性所带来的影响将做一些说明希望不管是开发还是运维能从中找到自己期望的新特性能解决生产中的痛点。预计阅读完本篇文章大约5分钟。
- 重点新特性： Hash Join   Mysql一直以来关于表连接只支持block-nested loop 算法。在最新的8.0.18支持了期望已久的Hash Join，对与多表连接中连接字段没有索引的场景下特别适合。这样再也不担心被驱动表连接字段忘记加索引导致线上SQL拖垮整个系统了。
-  目前MySQL对Hash Join支持也是有条件的：
-   每个连接当中，至少有一个等值连接条件；    在笛卡尔积场景下没有等值条件也会用上hash join      可以global 或者 session 对系统变量optimizer_switch中hash_join = on/off 进行控制（在8.0.19这个小版本已经弃用）
-  通过join_buffer_size可以调整hash连接表是否在内存或者落盘实现，这对整个速度会有比较大的影响。
-  下面是在mysql8.0中是否启用hash_join的场景下sql的变化。
-1. 查看优化器关于hash_join参数默认已经开启 MySQL 192.168.0.52:33060+ ssl SQL &amp;gt; show global variables like &amp;#39;%switch%%&amp;#39;\G; *************************** 1. row *************************** Variable_name: optimizer_switch Value: hash_join=on 2.</description>
     </item>
     
   </channel>
