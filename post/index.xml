@@ -5,10 +5,29 @@
     <link>https://bigleon.github.io/post/</link>
     <description>Recent content in Posts on Leon&#39;s blog</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Sat, 09 May 2020 14:07:40 +0800</lastBuildDate>
+    <lastBuildDate>Tue, 12 May 2020 17:21:35 +0800</lastBuildDate>
     
 	<atom:link href="https://bigleon.github.io/post/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>ES配置部署</title>
+      <link>https://bigleon.github.io/post/es%E9%85%8D%E7%BD%AE%E9%83%A8%E7%BD%B2/</link>
+      <pubDate>Tue, 12 May 2020 17:21:35 +0800</pubDate>
+      
+      <guid>https://bigleon.github.io/post/es%E9%85%8D%E7%BD%AE%E9%83%A8%E7%BD%B2/</guid>
+      <description>ES配置部署 导读 ELK早已成为日志搜集分析领域早已十分普及，如今ES功能越来越强大，有充当时序数据库功能做监控，与MySQL结合做聚合和搜索，或者充当大数据的用户查询入口等功能，还支持一些机器学习的能力。万事开头难，先撸个小集群，开启学习之旅~
+安装准备 Elasticsearch二进制包下载地址：
+https://www.elastic.co/cn/downloads/elasticsearch
+Kibana二进制包下载：
+https://www.elastic.co/cn/downloads/kibana
+部署环境：
+OS：CentOS7.6
+ES：Elastic Stack 7.6.2
+操作系统参数设置 配置文件：/etc/sysctl.conf
+cat&amp;gt;/etc/sysctl.conf&amp;lt;&amp;lt;EOF # 禁用内存与硬盘交换 vm.swappiness=1 # 设置虚拟内存大小 vm.max_map_count=262144 EOF sysctl -p 配置文件：/etc/security/limits.conf
+cat&amp;gt;/etc/security/limits.conf&amp;lt;&amp;lt;EOF # 进程线程数 * soft nproc 131072 * hard nproc 131072 # 文件句柄数 * soft nofile 131072 * hard nofile 131072 # 内存锁定交换 * soft memlock unlimited * hard memlock unlimited EOF 创建ES账号 #创建目录 mkdir /data/elastic -p #创建ES账号，如elastic useradd elastic # 授权ES程序目录elastic账号权限 #假设 ES程序目录、数据目录、日志目录都 在/data目录下 chown -R elastic:elastic /data/elastic/* JDK配置（可选）： /etc/profile</description>
+    </item>
     
     <item>
       <title>Golang语言基础之运算符【三】</title>
