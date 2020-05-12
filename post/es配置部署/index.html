@@ -12,7 +12,7 @@
     
     <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="ES配置部署"/>
-<meta name="twitter:description" content="ES配置部署 导读 ELK早已成为日志搜集分析领域早已十分普及，如今ES功能越来越强大，有充当时序数据库功能做监控，与MySQL结合做聚合和搜索，或者充当大数据的用户查询入口等功能，还支持一些机器学习的能力。万事开头难，先撸个小集群，开启学习之旅~
+<meta name="twitter:description" content="ES配置部署 导读 ELK在日志搜集分析领域早已十分普及，如今ES功能越来越强大，有充当时序数据库功能做监控，与MySQL结合做聚合和搜索，或者充当大数据的用户查询入口等功能，还支持一些机器学习的能力。万事开头难，先撸个小集群，开启学习之旅~
 安装准备 Elasticsearch二进制包下载地址：
 https://www.elastic.co/cn/downloads/elasticsearch
 Kibana二进制包下载：
@@ -25,7 +25,7 @@ cat&gt;/etc/sysctl.conf&lt;&lt;EOF # 禁用内存与硬盘交换 vm.swappiness=1
 cat&gt;/etc/security/limits.conf&lt;&lt;EOF # 进程线程数 * soft nproc 131072 * hard nproc 131072 # 文件句柄数 * soft nofile 131072 * hard nofile 131072 # 内存锁定交换 * soft memlock unlimited * hard memlock unlimited EOF 创建ES账号 #创建目录 mkdir /data/elastic -p #创建ES账号，如elastic useradd elastic # 授权ES程序目录elastic账号权限 #假设 ES程序目录、数据目录、日志目录都 在/data目录下 chown -R elastic:elastic /data/elastic/* JDK配置（可选）： /etc/profile"/>
 
     <meta property="og:title" content="ES配置部署" />
-<meta property="og:description" content="ES配置部署 导读 ELK早已成为日志搜集分析领域早已十分普及，如今ES功能越来越强大，有充当时序数据库功能做监控，与MySQL结合做聚合和搜索，或者充当大数据的用户查询入口等功能，还支持一些机器学习的能力。万事开头难，先撸个小集群，开启学习之旅~
+<meta property="og:description" content="ES配置部署 导读 ELK在日志搜集分析领域早已十分普及，如今ES功能越来越强大，有充当时序数据库功能做监控，与MySQL结合做聚合和搜索，或者充当大数据的用户查询入口等功能，还支持一些机器学习的能力。万事开头难，先撸个小集群，开启学习之旅~
 安装准备 Elasticsearch二进制包下载地址：
 https://www.elastic.co/cn/downloads/elasticsearch
 Kibana二进制包下载：
@@ -86,7 +86,7 @@ cat&gt;/etc/security/limits.conf&lt;&lt;EOF # 进程线程数 * soft nproc 13107
     <div class="post-content">
       <h2 id="es配置部署">ES配置部署</h2>
 <h4 id="导读">导读</h4>
-<p>ELK早已成为日志搜集分析领域早已十分普及，如今ES功能越来越强大，有充当时序数据库功能做监控，与MySQL结合做聚合和搜索，或者充当大数据的用户查询入口等功能，还支持一些机器学习的能力。万事开头难，先撸个小集群，开启学习之旅~</p>
+<p>ELK在日志搜集分析领域早已十分普及，如今ES功能越来越强大，有充当时序数据库功能做监控，与MySQL结合做聚合和搜索，或者充当大数据的用户查询入口等功能，还支持一些机器学习的能力。万事开头难，先撸个小集群，开启学习之旅~</p>
 <h4 id="安装准备">安装准备</h4>
 <p>Elasticsearch二进制包下载地址：</p>
 <p><a href="https://www.elastic.co/cn/downloads/elasticsearch">https://www.elastic.co/cn/downloads/elasticsearch</a></p>

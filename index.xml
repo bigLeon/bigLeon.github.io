@@ -16,7 +16,7 @@
       <pubDate>Tue, 12 May 2020 17:21:35 +0800</pubDate>
       
       <guid>https://bigleon.github.io/post/es%E9%85%8D%E7%BD%AE%E9%83%A8%E7%BD%B2/</guid>
-      <description>ES配置部署 导读 ELK早已成为日志搜集分析领域早已十分普及，如今ES功能越来越强大，有充当时序数据库功能做监控，与MySQL结合做聚合和搜索，或者充当大数据的用户查询入口等功能，还支持一些机器学习的能力。万事开头难，先撸个小集群，开启学习之旅~
+      <description>ES配置部署 导读 ELK在日志搜集分析领域早已十分普及，如今ES功能越来越强大，有充当时序数据库功能做监控，与MySQL结合做聚合和搜索，或者充当大数据的用户查询入口等功能，还支持一些机器学习的能力。万事开头难，先撸个小集群，开启学习之旅~
 安装准备 Elasticsearch二进制包下载地址：
 https://www.elastic.co/cn/downloads/elasticsearch
 Kibana二进制包下载：
